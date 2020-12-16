@@ -1,32 +1,42 @@
 import { ChartwerkBase, VueChartwerkBaseMixin, TickOrientation, TimeFormat, AxisFormat } from '@chartwerk/base';
 
 import * as d3 from 'd3';
-import * as _ from 'lodash';
+
+
 
 
 export class ChartwerkGaugePod extends ChartwerkBase<any, any> {
-  _metricsContainer: any;
+
+  // TODO: define the type better
+  private _dValue: d3.Selection<SVGTextElement, unknown, null, undefined>;
 
   constructor(el: HTMLElement, _series: any[] = [], _options: any = {}) {
     super(d3, el, _series, _options);
+    this._init();
   }
+
+
+  private _init() {
+    this._initValueText();
+  }
+
+  private _initValueText(): void {
+    this._dValue = this._chartContainer
+      .append('text')
+      .text('hey you')
+      .attr('fill', 'black');
+  }
+
 
   _renderMetrics(): void {
+    
   }
 
 
-  onMouseOver(): void {
-    // TODO: add
-  }
-
-  onMouseMove(): void {
-    // TODO: add
-  }
-
-  onMouseOut(): void {
-    // TODO: add
-  }
-
+  /* handlers and overloads */
+  onMouseOver(): void {}
+  onMouseMove(): void {}
+  onMouseOut(): void { }
   renderSharedCrosshair(): void {}
   hideSharedCrosshair(): void {}
 }
