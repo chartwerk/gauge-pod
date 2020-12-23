@@ -143,10 +143,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .range([0, 180])
       .clamp(true);
 
-    this.chartContainer.selectAll('.needle').data([this.aggregatedValue])
-      .transition()
-      .ease(d3.easeElasticOut)
-      .duration(1000)
+    this.chartContainer.selectAll('.needle')
+      .data([this.aggregatedValue])
       .attr('transform', (d: number) => {
         return this._gaugeTransform + 'rotate(' + scale(d) + ')'
       });
