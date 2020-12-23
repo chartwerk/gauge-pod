@@ -12,6 +12,7 @@ export type GaugeTimeSerie = TimeSerie;
 export type GaugeOptionsParams = {
   innerRadius: number;
   outerRadius: number;
+  // TODO: minValue
   maxValue: number;
   stops: number[];
   colors: string[];

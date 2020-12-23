@@ -18,7 +18,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   },
 
   colors: ['green', 'yellow', 'red'],
-  stops: [10, 30, 50],
+  stops: [10, 30],
   stat: Stat.CURRENT,
   innerRadius: 50,
   outerRadius: 80
@@ -54,7 +54,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   get stops(): number[] {
-    return this.options.stops;
+    return [...this.options.stops, this.options.maxValue || this.maxValue];
   }
 
   get innerRadius(): number {
