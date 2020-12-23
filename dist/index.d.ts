@@ -1,17 +1,17 @@
-import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
+import { GaugeTimeSerie, GaugeOptions } from './types';
 import { ChartwerkPod } from '@chartwerk/base';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
-    gaugeTransform: string;
+    private _gaugeTransform;
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
-    get valueRange(): number[];
-    get colors(): string[];
-    get stat(): Stat;
-    get stops(): number[];
-    get innerRadius(): number;
-    get outerRadius(): number;
-    get aggregatedValue(): number;
-    renderNeedle(): void;
     renderMetrics(): void;
+    private get _valueRange();
+    private get _colors();
+    private get _stat();
+    private get _innerRadius();
+    private get _outerRadius();
+    private get aggregatedValue();
+    private get _maxValue();
+    private _renderNeedle;
     onMouseOver(): void;
     onMouseMove(): void;
     onMouseOut(): void;

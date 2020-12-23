@@ -10,8 +10,11 @@ export declare type GaugeOptionsParams = {
     innerRadius: number;
     outerRadius: number;
     maxValue: number;
-    stops: number[];
-    colors: string[];
+    stops: {
+        color: string;
+        value: number;
+    }[];
+    defaultColor: string;
     stat: Stat;
 };
 export declare type GaugeOptions = Options & Partial<GaugeOptionsParams>;
