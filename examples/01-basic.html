@@ -7,15 +7,23 @@
     <script src="../dist/index.js" type="text/javascript"></script>
   </head>
   <body>
-
-    hello
     <div id="chart" style="width: 500px; height: 500px;"></div>
 
     <script type="text/javascript">
       var pod = new ChartwerkGaugePod(
         document.getElementById('chart'),
-        [{ target: 'test', datapoints: [[90, 5], [0, 10], [45, 15], [180, 20], [270, 25]], radius: 30 }],
-        { usePanning: false, renderLegend: false, renderYaxis: false, renderXaxis: false, renderGrid: false }
+        [{ target: 'test', datapoints: [[90, 5], [0, 10], [45, 15], [180, 20], [270, 25]] }],
+        { 
+          usePanning: false, 
+          renderLegend: false, 
+          renderYaxis: false, 
+          renderXaxis: false, 
+          renderGrid: false, 
+          zoom: {
+            type: 'none'
+          },
+          radius: 30 
+        }
       );
       pod.render();
     </script>
