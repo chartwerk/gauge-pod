@@ -10,6 +10,8 @@ export enum Stat {
 export type GaugeTimeSerie = TimeSerie;
 
 export type GaugeOptionsParams = {
+  innerRadius: number;
+  outerRadius: number;
   maxValue: number;
   stops: number[];
   colors: string[];

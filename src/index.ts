@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/base';
 
@@ -15,16 +15,17 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   renderGrid: false,
   zoom: {
     type: ZoomType.NONE
-  }
+  },
+
+  colors: ['green', 'yellow', 'red'],
+  stops: [10, 30, 50],
+  stat: Stat.CURRENT,
+  innerRadius: 50,
+  outerRadius: 80
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
-  gaugeCenter = '';
-
-  // it will be options
-  colors = ['green', 'yellow', 'red'];
-  stops = [10, 30, 100];
-  value = 140;
+  gaugeTransform = '';
 
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
@@ -44,31 +45,71 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return range;
   }
 
-  renderLine(): void {
-    let scale = d3.scaleLinear().domain([0, this.maxValue]).range([0, 180]);
-    this.chartContainer.selectAll('.needle').data([this.value])
+  get colors(): string[] {
+    return this.options.colors;
+  }
+
+  get stat(): Stat {
+    return this.options.stat;
+  }
+
+  get stops(): number[] {
+    return this.options.stops;
+  }
+
+  get innerRadius(): number {
+    return this.options.innerRadius;
+  }
+
+  get outerRadius(): number {
+    return this.options.outerRadius;
+  }
+
+  get aggregatedValue(): number {
+    switch(this.stat) {
+      case Stat.CURRENT:
+        return _.last(this.series[0].datapoints)[0];
+      default:
+        throw new Error(`Unsupported stat: ${this.stat}`);
+    }
+  }
+
+  renderNeedle(): void {
+    const maxValue = this.options.maxValue || this.maxValue;
+
+    let scale = d3.scaleLinear()
+      .domain([0, maxValue])
+      .range([0, 180])
+      .clamp(true);
+
+    this.chartContainer.selectAll('.needle').data([this.aggregatedValue])
       .transition()
       .ease(d3.easeElasticOut)
       .duration(1000)
       .attr('transform', (d: number) => {
-        return this.gaugeCenter + 'rotate(' + scale(d) + ')'
+        return this.gaugeTransform + 'rotate(' + scale(d) + ')'
       });
   }
 
   renderMetrics(): void {
-    this.gaugeCenter = `translate(${this.width / 2},${this.height - 10})`;
+    if(this.series.length === 0 || this.series[0].datapoints.length === 0) {
+      this.renderNoDataPointsMessage();
+      return;
+    }
 
-    let arc = d3.arc()
-      .innerRadius(50)
-      .outerRadius(80)
+    this.gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
+
+    const arc = d3.arc()
+      .innerRadius(this.innerRadius)
+      .outerRadius(this.outerRadius)
       .padAngle(0);
 
-    let pie = d3.pie()
+    const pie = d3.pie()
       .startAngle((-1 * Math.PI) / 2)
       .endAngle(Math.PI / 2)
       .sort(null);
 
-    let arcs = pie(this.valueRange);
+    const arcs = pie(this.valueRange);
 
     this.chartContainer.selectAll('path')
       .data(arcs)
@@ -78,9 +119,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
         return this.colors[i];
       })
       .attr('d', arc as any)
-      .attr('transform', this.gaugeCenter)
+      .attr('transform', this.gaugeTransform)
 
-    let needle = this.chartContainer.selectAll('.needle')
+    const needle = this.chartContainer.selectAll('.needle')
       .data([0])
       .enter()
       .append('line')
@@ -91,10 +132,10 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .classed('needle', true)
       .style('stroke', 'black')
       .attr('transform', (d: number) => {
-        return this.gaugeCenter + 'rotate(' + d + ')'
+        return this.gaugeTransform + 'rotate(' + d + ')'
       });
 
-    this.renderLine();
+    this.renderNeedle();
   }
 
 
