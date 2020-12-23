@@ -1,6 +1,6 @@
 import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
 
-import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/base';
+import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
 import * as d3 from 'd3';
 

@@ -1,5 +1,5 @@
 import { GaugeTimeSerie, GaugeOptions } from './types';
-import { ChartwerkPod } from '@chartwerk/base';
+import { ChartwerkPod } from '@chartwerk/core';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     private _gaugeTransform;
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);

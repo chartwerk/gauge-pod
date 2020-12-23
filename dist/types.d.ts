@@ -1,4 +1,4 @@
-import { TimeSerie, Options } from '@chartwerk/base';
+import { TimeSerie, Options } from '@chartwerk/core';
 export declare enum Stat {
     CURRENT = "current",
     MIN = "min",
