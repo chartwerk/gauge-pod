@@ -13,16 +13,8 @@
       var pod = new ChartwerkGaugePod(
         document.getElementById('chart'),
         [{ target: 'test', datapoints: [[90, 5], [0, 10], [45, 15], [180, 20], [270, 25]] }],
-        { 
-          usePanning: false, 
-          renderLegend: false, 
-          renderYaxis: false, 
-          renderXaxis: false, 
-          renderGrid: false, 
-          zoom: {
-            type: 'none'
-          },
-          radius: 30 
+        {
+          radius: 30
         }
       );
       pod.render();

@@ -1,20 +1,36 @@
-import { ChartwerkPod, VueChartwerkPodMixin } from '@chartwerk/base';
+import { GaugeTimeSerie, GaugeOptions } from './types';
+
+import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/base';
 
 import * as d3 from 'd3';
 
+import * as _ from 'lodash';
 
 
+const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
+  usePanning: false,
+  renderLegend: false,
+  renderYaxis: false,
+  renderXaxis: false,
+  renderGrid: false,
+  zoom: {
+    type: ZoomType.NONE
+  }
+};
 
-export class ChartwerkGaugePod extends ChartwerkPod<any, any> {
+export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
   gaugeCenter = '';
 
   // it will be options
   colors = ['green', 'yellow', 'red'];
-  stops = [10, 30];
-  value = 40;
+  stops = [10, 30, 100];
+  value = 140;
 
-  constructor(el: HTMLElement, _series: any[] = [], _options: any = {}) {
-    super(d3, el, _series, _options);
+  constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
+    super(
+      d3, el, _series,
+      _.defaults(_options, DEFAULT_GAUGE_OPTIONS)
+    );
   }
 
   get valueRange(): number[] {
@@ -23,7 +39,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<any, any> {
     }
     let range = [this.stops[0]];
     for(let i = 1; i < this.stops.length; i++) {
-      range.push(this.stops[i]-this.stops[i-1]);
+      range.push(this.stops[i] - this.stops[i-1]);
     }
     return range;
   }
@@ -50,9 +66,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<any, any> {
     let pie = d3.pie()
       .startAngle((-1 * Math.PI) / 2)
       .endAngle(Math.PI / 2)
+      .sort(null);
 
     let arcs = pie(this.valueRange);
-    let background = this.chartContainer.selectAll('path')
+
+    this.chartContainer.selectAll('path')
       .data(arcs)
       .enter()
       .append('path')
