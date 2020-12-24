@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
 import { ChartwerkPod } from '@chartwerk/core';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     private _gaugeTransform;
@@ -60,3 +60,4 @@ export declare const VueChartwerkGaugePodObject: {
         render(): void;
     };
 };
+export { GaugeOptions, GaugeTimeSerie, Stat };

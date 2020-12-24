@@ -179,3 +179,4 @@ export const VueChartwerkGaugePodObject = {
   }
 };
 
+export { GaugeOptions, GaugeTimeSerie, Stat };
