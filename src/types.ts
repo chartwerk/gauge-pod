@@ -7,6 +7,11 @@ export enum Stat {
   TOTAL = 'total'
 }
 
+export type Stop = {
+  color: string,
+  value: number | null
+};
+
 export type GaugeTimeSerie = TimeSerie;
 
 export type GaugeOptionsParams = {

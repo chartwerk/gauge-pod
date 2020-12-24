@@ -5,6 +5,10 @@ export declare enum Stat {
     MAX = "max",
     TOTAL = "total"
 }
+export declare type Stop = {
+    color: string;
+    value: number | null;
+};
 export declare type GaugeTimeSerie = TimeSerie;
 export declare type GaugeOptionsParams = {
     innerRadius: number;

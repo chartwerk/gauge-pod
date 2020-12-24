@@ -5,6 +5,7 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
     private get _valueRange();
+    private get _sortedStops();
     private get _colors();
     private get _stat();
     private get _innerRadius();

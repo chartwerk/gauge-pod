@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
@@ -94,7 +94,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   // TODO: better name
   private get _valueRange(): number[] {
     // TODO: refactor
-    const stopValues = [...this.options.stops.map(stop => stop.value), this.options.maxValue || this.maxValue]
+    // TODO: max value might be less than the latest stop
+    const stopValues = [...this._sortedStops.map(stop => stop.value), this.options.maxValue || this.maxValue];
 
     if(stopValues.length < 2) {
       return stopValues;
@@ -106,9 +107,13 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return range;
   }
 
+  private get _sortedStops(): Stop[] {
+    return _.sortBy(this.options.stops);
+  }
+
   private get _colors(): string[] {
     // TODO: refactor
-    return [...this.options.stops.map(stop => stop.color), this.options.defaultColor];
+    return [...this._sortedStops.map(stop => stop.color), this.options.defaultColor];
   }
 
   private get _stat(): Stat {
