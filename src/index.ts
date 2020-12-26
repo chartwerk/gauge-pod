@@ -74,21 +74,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('d', arc as any)
       .attr('transform', this._gaugeTransform)
 
-    const needle = this.chartContainer.selectAll('.needle')
-      .data([0])
-      .enter()
-      .append('line')
-      .attr('x1', 0)
-      .attr('x2', -80)
-      .attr('y1', 0)
-      .attr('y2', 0)
-      .classed('needle', true)
-      .style('stroke', 'black')
-      .attr('transform', (d: number) => {
-        return this._gaugeTransform + 'rotate(' + d + ')'
-      });
-
-    this._renderNeedle();
+    this._renderValueArc();
   }
 
   // TODO: better name
@@ -142,13 +128,28 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return this.options.maxValue || this.maxValue;
   }
 
-  private _renderNeedle(): void {
+  private _renderValueArc(): void {
+    let className = 'valueArc';
+    this.chartContainer.selectAll('.' + className)
+      .data([0])
+      .enter()
+      .append('line')
+      .attr('x1', 0)
+      .attr('x2', -80)
+      .attr('y1', 0)
+      .attr('y2', 0)
+      .classed(className, true)
+      .style('stroke', 'red')
+      .attr('transform', (d: number) => {
+        return this._gaugeTransform + 'rotate(' + d + ')'
+      });
+
     let scale = d3.scaleLinear()
       .domain([0, this._maxValue])
       .range([0, 180])
       .clamp(true);
 
-    this.chartContainer.selectAll('.needle')
+    this.chartContainer.selectAll('.valueArc')
       .data([this.aggregatedValue])
       .attr('transform', (d: number) => {
         return this._gaugeTransform + 'rotate(' + scale(d) + ')'
