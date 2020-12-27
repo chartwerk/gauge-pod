@@ -1,27 +1,20 @@
 import { TimeSerie, Options } from '@chartwerk/core';
 
-export enum Stat {
-  CURRENT = 'current',
-  MIN = 'min',
-  MAX = 'max',
-  TOTAL = 'total'
-}
-
-export type Stop = {
-  color: string,
-  value: number | null
-};
 
 export type GaugeTimeSerie = TimeSerie;
 
-export type GaugeOptionsParams = {
-  innerRadius: number;
-  outerRadius: number;
-  // TODO: minValue
-  maxValue: number;
-  stops: { color: string , value: number }[];
-  defaultColor: string;
-  stat: Stat;
+/**
+ * The way to choose one value from metrics
+ */
+export enum Stat {
+  CURRENT,
+  MIN,
+  MAX,
+  TOTAL
 }
 
-export type GaugeOptions = Options & Partial<GaugeOptionsParams>;
+export type GaugeOptions = Options & {
+  stat: Stat
+  innerRadius: number;
+  outerRadius: number;
+}
