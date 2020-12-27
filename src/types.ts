@@ -23,4 +23,5 @@ export type GaugeOptionsParams = {
   defaultColor: string;
   stat: Stat;
 }
+
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;

@@ -7,7 +7,7 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 
 
-const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
+const DEFAULT_OPTIONS: GaugeOptions = {
   usePanning: false,
   renderLegend: false,
   renderYaxis: false,
@@ -40,7 +40,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
       d3, el, _series,
-      _.defaults(_options, DEFAULT_GAUGE_OPTIONS)
+      _.defaults(_options, DEFAULT_OPTIONS)
     );
   }
 
@@ -53,8 +53,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
 
     const arc = d3.arc()
-      .innerRadius(this._innerRadius)
-      .outerRadius(this._outerRadius)
+      .innerRadius(this.innerRadius)
+      .outerRadius(this.outerRadius)
       .padAngle(0);
 
     const pie = d3.pie()
@@ -106,11 +106,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return this.options.stat;
   }
 
-  private get _innerRadius(): number {
+  public get innerRadius(): number {
     return this.options.innerRadius;
   }
 
-  private get _outerRadius(): number {
+  public get outerRadius(): number {
     return this.options.outerRadius;
   }
 
@@ -129,31 +129,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private _renderValueArc(): void {
-    let className = 'valueArc';
-    this.chartContainer.selectAll('.' + className)
-      .data([0])
-      .enter()
-      .append('line')
-      .attr('x1', 0)
-      .attr('x2', -80)
-      .attr('y1', 0)
-      .attr('y2', 0)
-      .classed(className, true)
-      .style('stroke', 'red')
-      .attr('transform', (d: number) => {
-        return this._gaugeTransform + 'rotate(' + d + ')'
-      });
 
-    let scale = d3.scaleLinear()
-      .domain([0, this._maxValue])
-      .range([0, 180])
-      .clamp(true);
-
-    this.chartContainer.selectAll('.valueArc')
-      .data([this.aggregatedValue])
-      .attr('transform', (d: number) => {
-        return this._gaugeTransform + 'rotate(' + scale(d) + ')'
-      });
   }
 
   /* handlers and overloads */
