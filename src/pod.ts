@@ -20,7 +20,7 @@ export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
       return;
     }
     new Gauge(this.d3Node, this.options).render(
-      GaugeOptionsUtils.getValueFromDatapoints(this.options, this.series);
+      GaugeOptionsUtils.getValueFromDatapoints(this.options, this.series)
     );
   }
 
