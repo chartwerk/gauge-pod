@@ -23,6 +23,11 @@ export type Threshold = {
   color: string
 }
 
+// this `type` should be `class` and get all functions
+// from GaugeOptionsUtils as methods;
+//
+// all fields with "?" should be inited in constructor
+// with default values, "?" should be removed after
 export type GaugeOptions = Options & {
   stat:         Stat,
   range?:       Range
@@ -48,7 +53,10 @@ export namespace GaugeOptionsUtils {
   export function setDefaults(options: GaugeOptions) {
     setChartwerkSuperPodDefaults(options);
     if(options.range === undefined) {
-      options.range = { from: 0, to: 100 }
+      options.range = { from: 0, to: 100 };
+    }
+    if(options.range === undefined) {
+      options.thresholds = [];
     }
     return options;
   }
