@@ -1,1 +1,1 @@
-export { Pod as ChartwerkGaugePod } from './pod.ts'
+export { Pod as ChartwerkGaugePod } from './pod'

@@ -1,4 +1,4 @@
-import { TimeSerie, Options } from '@chartwerk/core';
+import { TimeSerie, Options, ZoomType } from '@chartwerk/core';
 
 
 export type GaugeTimeSerie = TimeSerie;
@@ -47,6 +47,7 @@ export namespace GaugeOptionsUtils {
     options.renderYaxis  = false;
     options.renderXaxis  = false;
     options.renderGrid   = false;
+    options.zoom         = { type: ZoomType.NONE };
     return options;
   }
 

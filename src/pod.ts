@@ -1,4 +1,5 @@
 import { GaugeOptions, GaugeTimeSerie, GaugeOptionsUtils } from './types';
+import { Gauge } from './gauge';
 import { ChartwerkPod } from '@chartwerk/core';
 
 import * as d3 from 'd3';
@@ -14,7 +15,7 @@ export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
   }
 
   renderMetrics(): void {
-    console.log('hey hey');
+    
   }
 
   /* handlers and overloads */
