@@ -7,10 +7,10 @@ export type GaugeTimeSerie = TimeSerie;
  * The way to choose one value from metrics
  */
 export enum Stat {
-  CURRENT,
-  MIN,
-  MAX,
-  TOTAL
+  CURRENT = 'current',
+  // MIN     = 'min',
+  // MAX     = 'max',
+  // TOTAL   = 'total'
 }
 
 export type Threshold = {

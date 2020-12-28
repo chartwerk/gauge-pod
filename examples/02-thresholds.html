@@ -14,7 +14,10 @@
         document.getElementById('chart'),
         [{ target: 'basic', datapoints: [[5, 5], [0, 10], [30, 15], [50, 20], [30, 25]] }],
         {
-          stat: 'current'
+          thresholds: [
+            { value: 0, color: 'green', },
+            { value: 30, color: 'yellow' }
+          ]
         }
       );
       pod.render();
