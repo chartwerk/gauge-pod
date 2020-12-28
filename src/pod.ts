@@ -15,7 +15,13 @@ export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
   }
 
   renderMetrics(): void {
-    new Gauge(this.d3Node, this.options).render();
+    if (this.series.length === 0 || this.series[0].datapoints.length === 0) {
+      this.renderNoDataPointsMessage();
+      return;
+    }
+    new Gauge(this.d3Node, this.options).render(
+      GaugeOptionsUtils.getValueFromDatapoints(this.options, this.series);
+    );
   }
 
   /* handlers and overloads */

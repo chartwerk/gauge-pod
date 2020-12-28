@@ -60,4 +60,23 @@ export namespace GaugeOptionsUtils {
     }
     return options;
   }
+
+  export function getValueFromDatapoints(
+    options: GaugeOptions, series: GaugeTimeSerie[]
+  ): number | null {
+    // we ignore stat type and always return CURRENT stat
+    if(series.length == 0) {
+      throw new Error('Series are empty');
+    }
+    if(series.length > 1) {
+      console.warn('got to many series: ' + series.length);
+    }
+    // we process exactly one serie
+    let serie = series[0];
+    if(serie.datapoints.length === 0) {
+      return null;
+    }
+    // we take value from position 1, where 0 is time
+    return serie.datapoints[serie.datapoints.length - 1][1];
+  }
 }

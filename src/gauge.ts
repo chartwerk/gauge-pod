@@ -10,7 +10,7 @@ export class Gauge {
     
   }
 
-  public render() {
-    this.d3Node.append('text').text('asdasd');
+  public render(value: number) {
+    this.d3Node.append('text').text(value);
   }
 }
