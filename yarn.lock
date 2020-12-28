@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@chartwerk/base@github:chartwerk/base":
-  version "0.2.4"
-  resolved "https://codeload.github.com/chartwerk/base/tar.gz/4351db8d68acd3d527cbd6e56d3fa1bb22f25f3c"
+"@chartwerk/core@github:chartwerk/core#dist":
+  version "0.1.0"
+  resolved "https://codeload.github.com/chartwerk/core/tar.gz/ca53d7a950ed8d2e34c490badd49b25326bd76a9"
 
 "@types/d3-array@^1":
   version "1.2.8"
