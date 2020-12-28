@@ -13,10 +13,14 @@ export enum Stat {
   TOTAL
 }
 
+export type Threshold = {
+  value: number,
+  color: string
+}
+
 export type GaugeOptions = Options & {
-  stat: Stat
-  innerRadius: number;
-  outerRadius: number;
+  stat: Stat,
+  thresholds?: Threshold[] // should be sorted
 }
 
 /***** OPTIONS UTILS ******/

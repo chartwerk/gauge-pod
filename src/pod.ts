@@ -6,9 +6,9 @@ import * as d3 from 'd3';
 
 export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
 
-  constructor(el: HTMLElement, _series: GaugeTimeSerie[], options: GaugeOptions) {
+  constructor(el: HTMLElement, series: GaugeTimeSerie[], options: GaugeOptions) {
     super(
-      d3, el, _series, 
+      d3, el, series,
       GaugeOptionsUtils.setChartwerkSuperPodDefaults(options)
     );
   }
