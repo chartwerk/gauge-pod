@@ -39,7 +39,6 @@ export type GaugeOptions = Options & {
  * chartwerk core is garbage. We can't make our options to be a class,
  * because `chartwerk.core.Options` is a type, not a class..
  */
-
 export namespace GaugeOptionsUtils {
   export function setChartwerkSuperPodDefaults(options: GaugeOptions): GaugeOptions { 
     options.usePanning   = false;
