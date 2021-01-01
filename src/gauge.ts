@@ -20,7 +20,7 @@ export class Gauge {
     protected svg: SVGD3,
     protected readonly options: GaugeOptions
   ) {}
-  
+
   private _setBoundingBox(boundingBox: BoundingBox) {
     this._boundingBox = boundingBox;
     if(this._boundingBox.x === undefined) {
