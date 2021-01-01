@@ -7,7 +7,10 @@ import * as d3 from 'd3';
 
 export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
 
-  constructor(el: HTMLElement, series: GaugeTimeSerie[], protected readonly options: GaugeOptions) {
+  constructor(
+    el: HTMLElement, series: GaugeTimeSerie[],
+    protected readonly options: GaugeOptions
+   ) {
     super(
       d3, el, series,
       GaugeOptionsUtils.setDefaults(options)
@@ -21,7 +24,7 @@ export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     }
     new Gauge(this.svg, this.options).render(
       GaugeOptionsUtils.getValueFromDatapoints(this.options, this.series),
-      { x: 10, y: 10, width: 50, height: 200 }
+      { x: 10, y: 15, width: 50, height: 200 }
     );
   }
 

@@ -10,25 +10,52 @@ export type BoundingBox = {
 }
 
 export class Gauge {
+  private _rootGroup: d3.Selection<SVGElement, unknown, null, undefined>;
   
-  private _root: d3.Selection<SVGElement, unknown, null, undefined>;
+  private _boundingBox: BoundingBox;
+  private _radius: number;
+  private _centrum: { x: number, y: number };
+
   constructor(
     protected svg: SVGD3,
     protected readonly options: GaugeOptions
   ) {}
+  
+  private _setBoundingBox(boundingBox: BoundingBox) {
+    this._boundingBox = boundingBox;
+    if(this._boundingBox.x === undefined) {
+      this._boundingBox.x = 0;
+    }
+    if(this._boundingBox.y === undefined) {
+      this._boundingBox.y = 0;
+    }
+    
+    let minWH = Math.min(this._boundingBox.width, this._boundingBox.height);
+    this._radius = minWH / 2;
+    this._centrum = { 
+      x: this._boundingBox.width / 2,
+      y: this._boundingBox.height / 2,
+    };    
+  }
 
   public render(value: number, boudingBox: BoundingBox) {
-    let rootGroup = this.svg.append('g');
-    if(boudingBox.x === undefined) {
-      boudingBox.x = 0;
-    }
-    if(boudingBox.y === undefined) {
-      boudingBox.y = 0;
-    }
-    rootGroup.attr('transform', `translate(${boudingBox.x} ${boudingBox.y})`);
-    rootGroup.append('rect')
-      .attr('width', boudingBox.width)
-      .attr('height', boudingBox.height)
-      .attr('style', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)')
+    this._setBoundingBox(boudingBox);
+    this._initRootGroup();
+    this._renderValueArc();
+  }
+
+  private _initRootGroup() {
+    this._rootGroup = this.svg.append('g');
+    this._rootGroup.attr(
+      'transform', `translate(${this._boundingBox.x} ${this._boundingBox.y})`
+    );
+  }
+
+  private _renderValueArc() {
+    this._rootGroup
+      .append('circle')
+      .attr('cx', this._centrum.x)
+      .attr('cy', this._centrum.y)
+      .attr('r',  this._radius)
   }
 }
