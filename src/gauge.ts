@@ -11,7 +11,7 @@ export type BoundingBox = {
 
 export class Gauge {
   private _rootGroup: d3.Selection<SVGElement, unknown, null, undefined>;
-  
+
   private _boundingBox: BoundingBox;
   private _radius: number;
   private _centrum: { x: number, y: number };
@@ -29,13 +29,12 @@ export class Gauge {
     if(this._boundingBox.y === undefined) {
       this._boundingBox.y = 0;
     }
-    
     let minWH = Math.min(this._boundingBox.width, this._boundingBox.height);
     this._radius = minWH / 2;
-    this._centrum = { 
+    this._centrum = {
       x: this._boundingBox.width / 2,
       y: this._boundingBox.height / 2,
-    };    
+    };
   }
 
   public render(value: number, boudingBox: BoundingBox) {
