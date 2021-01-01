@@ -24,7 +24,7 @@ export class Pod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     }
     new Gauge(this.chartContainer, this.options).render(
       GaugeOptionsUtils.getValueFromDatapoints(this.options, this.series),
-      { x: 10, y: 15, width: 50, height: 200 }
+      { x: 0, y: 0, width: this.width, height: this.height }
     );
   }
 
