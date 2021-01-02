@@ -2,7 +2,7 @@ import { GaugeOptions } from './types';
 
 import * as d3 from 'd3';
 
-export type SVGD3 = d3.Selection<SVGElement, unknown, null, undefined>;
+export type D3SVGSelection = d3.Selection<SVGElement, unknown, null, undefined>;
 
 export type BoundingBox = {
   x?: number, y?: number,
@@ -10,14 +10,14 @@ export type BoundingBox = {
 }
 
 export class Gauge {
-  private _rootGroup: d3.Selection<SVGElement, unknown, null, undefined>;
+  private _rootGroup: D3SVGSelection;
 
   private _boundingBox: BoundingBox;
   private _radius: number;
   private _centrum: { x: number, y: number };
 
   constructor(
-    protected svg: SVGD3,
+    protected svg: D3SVGSelection,
     protected readonly options: GaugeOptions
   ) {}
 
