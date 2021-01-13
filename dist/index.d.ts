@@ -4,8 +4,12 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private _gaugeTransform;
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
+    private get _valueArcColors();
+    private get _mainCircleColor();
+    private get _stopsRange();
     private get _valueRange();
     private get _sortedStops();
+    private get _stopsValues();
     private get _colors();
     private get _stat();
     private get _innerRadius();
