@@ -2,10 +2,18 @@ import { GaugeTimeSerie, GaugeOptions, Stat, Stop } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
+import { findClosest } from './utils';
+
 import * as d3 from 'd3';
 
 import * as _ from 'lodash';
 
+const SPACE_BETWEEN_CIRCLES = 2;
+const CIRCLES_ROUNDING = 0.15; //radians
+const BACKGROUND_COLOR = '#262626';
+const DEFAULT_INNER_RADIUS = 48;
+const DEFAULT_OUTER_RADIUS = 72;
+const DEFAULT_STOPS_CIRCLE_WIDTH = 4;
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   usePanning: false,
@@ -29,8 +37,8 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   ],
   defaultColor: 'red',
   stat: Stat.CURRENT,
-  innerRadius: 48,
-  outerRadius: 72
+  innerRadius: DEFAULT_INNER_RADIUS,
+  outerRadius: DEFAULT_OUTER_RADIUS
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -49,70 +57,75 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       this.renderNoDataPointsMessage();
       return;
     }
-    console.log('renderMetrics', this.options);
     this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
 
     const arc = d3.arc()
       .innerRadius(this._innerRadius)
       .outerRadius(this._outerRadius)
       .padAngle(0);
-    
-    const arc2 = d3.arc()
-      .innerRadius(74)
-      .outerRadius(78)
+
+    const thresholdInnerRadius = this._outerRadius + SPACE_BETWEEN_CIRCLES;
+    // TODO: move to options
+    const thresholdOuterRadius = thresholdInnerRadius + DEFAULT_STOPS_CIRCLE_WIDTH;
+    const thresholdArc = d3.arc()
+      .innerRadius(thresholdInnerRadius)
+      .outerRadius(thresholdOuterRadius)
       .padAngle(0);
 
     const pie = d3.pie()
-      .startAngle((-1 * Math.PI) / 2 - 0.15)
-      .endAngle(Math.PI / 2 + 0.15)
+      .startAngle((-1 * Math.PI) / 2 - CIRCLES_ROUNDING)
+      .endAngle(Math.PI / 2 + CIRCLES_ROUNDING)
       .sort(null);
 
-    console.log('this._valueRange', this._valueRange);
-    const arcs = pie(this._valueRange);
-
-    this.chartContainer.selectAll('path')
-      .data(arcs)
+    const valueArcs = pie(this._valueRange);
+    this.chartContainer.selectAll(null)
+      .data(valueArcs)
       .enter()
       .append('path')
       .style('fill', (d: object, i: number) => {
-        return 'orange';
+        return this._valueArcColors[i];
       })
       .attr('d', arc as any)
-      .attr('transform', this._gaugeTransform)
+      .attr('transform', this._gaugeTransform);
 
-    this.chartContainer.selectAll(null)
-      .data(arcs)
-      .enter()
-      .append('path')
-      .style('fill', (d: object, i: number) => {
-        return this._colors[i];
-      })
-      .attr('d', arc2 as any)
-      .attr('transform', this._gaugeTransform)
+    if(this._sortedStops.length > 0) {
+      const stopArcs = pie(this._stopsRange);
+      this.chartContainer.selectAll(null)
+        .data(stopArcs)
+        .enter()
+        .append('path')
+        .style('fill', (d: object, i: number) => {
+          return this._colors[i];
+        })
+        .attr('d', thresholdArc as any)
+        .attr('transform', this._gaugeTransform);
+    }
+  }
 
-    const needle = this.chartContainer.selectAll('.needle')
-      .data([0])
-      .enter()
-      .append('line')
-      .attr('x1', 0)
-      .attr('x2', -80)
-      .attr('y1', 0)
-      .attr('y2', 0)
-      .classed('needle', true)
-      .style('stroke', 'black')
-      .attr('transform', (d: number) => {
-        return this._gaugeTransform + 'rotate(' + d + ')'
-      });
+  private get _valueArcColors(): [string, string] {
+    return [this._mainCircleColor, BACKGROUND_COLOR];
+  }
 
-    this._renderNeedle();
+  private get _mainCircleColor(): string {
+    if(this.aggregatedValue > _.max(this._stopsValues) || this.aggregatedValue < 0 || this._sortedStops.length === 0) {
+      // TODO: aggregatedValue can be less than 0
+      return this.options.defaultColor;
+    }
+    // TODO: refactor
+    const closestIdx = findClosest(this._stopsValues, this.aggregatedValue);
+    const closestStop = this._sortedStops[closestIdx];
+    if(this.aggregatedValue > closestStop.value) {
+      return this._sortedStops[closestIdx + 1].color;
+    } else {
+      return closestStop.color;
+    }
   }
 
   // TODO: better name
-  private get _valueRange(): number[] {
+  private get _stopsRange(): number[] {
     // TODO: refactor
     // TODO: max value might be less than the latest stop
-    console.log('_sortedStops', this._sortedStops);
-    const stopValues = [...this._sortedStops.map(stop => stop.value), this.options.maxValue || this.maxValue];
+    const stopValues = [...this._stopsValues, this._maxValue];
 
     if(stopValues.length < 2) {
       return stopValues;
@@ -124,8 +137,16 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return range;
   }
 
+  private get _valueRange(): [number, number] {
+    return [this.aggregatedValue, this._maxValue - this.aggregatedValue];
+  }
+
   private get _sortedStops(): Stop[] {
     return _.sortBy(this.options.stops);
+  }
+
+  private get _stopsValues(): number[] {
+    return this._sortedStops.map(stop => stop.value);
   }
 
   private get _colors(): string[] {
