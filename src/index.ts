@@ -29,8 +29,8 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   ],
   defaultColor: 'red',
   stat: Stat.CURRENT,
-  innerRadius: 50,
-  outerRadius: 80
+  innerRadius: 48,
+  outerRadius: 72
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -49,19 +49,25 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       this.renderNoDataPointsMessage();
       return;
     }
-
+    console.log('renderMetrics', this.options);
     this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
 
     const arc = d3.arc()
       .innerRadius(this._innerRadius)
       .outerRadius(this._outerRadius)
       .padAngle(0);
+    
+    const arc2 = d3.arc()
+      .innerRadius(74)
+      .outerRadius(78)
+      .padAngle(0);
 
     const pie = d3.pie()
-      .startAngle((-1 * Math.PI) / 2)
-      .endAngle(Math.PI / 2)
+      .startAngle((-1 * Math.PI) / 2 - 0.15)
+      .endAngle(Math.PI / 2 + 0.15)
       .sort(null);
 
+    console.log('this._valueRange', this._valueRange);
     const arcs = pie(this._valueRange);
 
     this.chartContainer.selectAll('path')
@@ -69,9 +75,19 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .enter()
       .append('path')
       .style('fill', (d: object, i: number) => {
-        return this._colors[i];
+        return 'orange';
       })
       .attr('d', arc as any)
+      .attr('transform', this._gaugeTransform)
+
+    this.chartContainer.selectAll(null)
+      .data(arcs)
+      .enter()
+      .append('path')
+      .style('fill', (d: object, i: number) => {
+        return this._colors[i];
+      })
+      .attr('d', arc2 as any)
       .attr('transform', this._gaugeTransform)
 
     const needle = this.chartContainer.selectAll('.needle')
@@ -95,6 +111,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   private get _valueRange(): number[] {
     // TODO: refactor
     // TODO: max value might be less than the latest stop
+    console.log('_sortedStops', this._sortedStops);
     const stopValues = [...this._sortedStops.map(stop => stop.value), this.options.maxValue || this.maxValue];
 
     if(stopValues.length < 2) {
