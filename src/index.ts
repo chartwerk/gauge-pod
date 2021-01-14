@@ -14,6 +14,7 @@ const BACKGROUND_COLOR = '#262626';
 const DEFAULT_INNER_RADIUS = 48;
 const DEFAULT_OUTER_RADIUS = 72;
 const DEFAULT_STOPS_CIRCLE_WIDTH = 4;
+const DEFAULT_VALUE_TEXT_FONT_SIZE = 14;
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   usePanning: false,
@@ -44,6 +45,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
   // TODO: better name
   private _gaugeTransform = '';
+  private _gaugeCenter = '';
 
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
@@ -53,31 +55,41 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   renderMetrics(): void {
-    if (this.series.length === 0 || this.series[0].datapoints.length === 0) {
+    if(this.series.length === 0 || this.series[0].datapoints.length === 0) {
       this.renderNoDataPointsMessage();
       return;
     }
     this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
+    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${this.height + this.margin.top - 16})`;
 
+    this._renderValueArc();
+    this._renderThresholdArc();
+    this._renderValue();
+  }
+
+  private _renderValue(): void {
+    this.svg
+      .append('text')
+      .attr('x', 0)
+      .attr('y', 0)
+      .text(this._valueText)
+      .classed('value-text', true)
+      .attr('font-family', 'Poppins, sans-serif')
+      .attr('font-size', `${this._valueTextFontSize}px`)
+      .attr('transform', this._gaugeCenter)
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('fill', this._mainCircleColor)
+      .style('font-weight', 'bold');
+  }
+
+  private _renderValueArc(): void {
     const arc = d3.arc()
       .innerRadius(this._innerRadius)
       .outerRadius(this._outerRadius)
       .padAngle(0);
 
-    const thresholdInnerRadius = this._outerRadius + SPACE_BETWEEN_CIRCLES;
-    // TODO: move to options
-    const thresholdOuterRadius = thresholdInnerRadius + DEFAULT_STOPS_CIRCLE_WIDTH;
-    const thresholdArc = d3.arc()
-      .innerRadius(thresholdInnerRadius)
-      .outerRadius(thresholdOuterRadius)
-      .padAngle(0);
-
-    const pie = d3.pie()
-      .startAngle((-1 * Math.PI) / 2 - CIRCLES_ROUNDING)
-      .endAngle(Math.PI / 2 + CIRCLES_ROUNDING)
-      .sort(null);
-
-    const valueArcs = pie(this._valueRange);
+    const valueArcs = this._d3Pie(this._valueRange);
     this.chartContainer.selectAll(null)
       .data(valueArcs)
       .enter()
@@ -87,19 +99,37 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       })
       .attr('d', arc as any)
       .attr('transform', this._gaugeTransform);
+  }
 
-    if(this._sortedStops.length > 0) {
-      const stopArcs = pie(this._stopsRange);
-      this.chartContainer.selectAll(null)
-        .data(stopArcs)
-        .enter()
-        .append('path')
-        .style('fill', (d: object, i: number) => {
-          return this._colors[i];
-        })
-        .attr('d', thresholdArc as any)
-        .attr('transform', this._gaugeTransform);
+  private _renderThresholdArc(): void {
+    if(this._sortedStops.length === 0) {
+      return;
     }
+    const thresholdInnerRadius = this._outerRadius + SPACE_BETWEEN_CIRCLES;
+    // TODO: move to options
+    const thresholdOuterRadius = thresholdInnerRadius + DEFAULT_STOPS_CIRCLE_WIDTH;
+    const thresholdArc = d3.arc()
+      .innerRadius(thresholdInnerRadius)
+      .outerRadius(thresholdOuterRadius)
+      .padAngle(0);
+
+    const stopArcs = this._d3Pie(this._stopsRange);
+    this.chartContainer.selectAll(null)
+      .data(stopArcs)
+      .enter()
+      .append('path')
+      .style('fill', (d: object, i: number) => {
+        return this._colors[i];
+      })
+      .attr('d', thresholdArc as any)
+      .attr('transform', this._gaugeTransform);
+  }
+
+  private get _d3Pie(): d3.Pie<any, { valueOf(): number; }> {
+    return d3.pie()
+      .startAngle((-1 * Math.PI) / 2 - CIRCLES_ROUNDING)
+      .endAngle(Math.PI / 2 + CIRCLES_ROUNDING)
+      .sort(null);
   }
 
   private get _valueArcColors(): [string, string] {
@@ -152,6 +182,15 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   private get _colors(): string[] {
     // TODO: refactor
     return [...this._sortedStops.map(stop => stop.color), this.options.defaultColor];
+  }
+
+  private get _valueText(): string {
+    // TODO: toFixed count should be an option
+    return this.aggregatedValue.toFixed(2);
+  }
+
+  private get _valueTextFontSize(): number {
+    return DEFAULT_VALUE_TEXT_FONT_SIZE;
   }
 
   private get _stat(): Stat {
