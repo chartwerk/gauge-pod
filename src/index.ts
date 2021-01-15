@@ -51,11 +51,6 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
-  // TODO: better name
-  private _gaugeTransform = '';
-  private _gaugeCenter = '';
-  private _minWH = 0;
-
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
       d3, el, _series,
@@ -69,18 +64,22 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       return;
     }
 
-    this._setBoundingBox();
     this._renderValueArc();
     this._renderThresholdArc();
     this._renderValue();
   }
 
-  private _setBoundingBox(): void {
-    // TODO: refactor
-    this._gaugeTransform = `translate(${this.width / 2},${0.8 * this.height})`;
-    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${0.8 * this.height})`;
+  get _gaugeTransform(): string {
+    return `translate(${this.width / 2},${0.8 * this.height})`;
+  }
 
-    this._minWH = _.min([0.6 * this.width, this.height]);
+  get _gaugeCenter(): string {
+    return `translate(${this.width / 2 + this.margin.left},${0.8 * this.height})`;
+  }
+
+  get _minWH(): number {
+    console.log(this.width, this.height);
+    return _.min([0.6 * this.width, this.height]);
   }
 
   private _renderValue(): void {
@@ -250,7 +249,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
 
   private get _valueTextDecimals(): number {
     if(this.options.valueTextFormat === undefined) {
-      throw new Error(`Options has no valueTextFormat`);      
+      throw new Error(`Options has no valueTextFormat`);
     }
     return this.options.valueTextFormat.decimals;
   }
