@@ -3,8 +3,10 @@ import { ChartwerkPod } from '@chartwerk/core';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     private _gaugeTransform;
     private _gaugeCenter;
+    private _minWH;
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
+    private _setBoundingBox;
     private _renderValue;
     private _renderValueArc;
     private _renderThresholdArc;
@@ -21,6 +23,9 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private get _stat();
     private get _innerRadius();
     private get _outerRadius();
+    rescaleArcRadius(radius: number): number;
+    rescaleValueFont(fontsize: number): number;
+    private get _scaleFactor();
     private get _valueTextDecimals();
     private get aggregatedValue();
     private get _maxValue();
