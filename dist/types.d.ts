@@ -9,6 +9,9 @@ export declare type Stop = {
     color: string;
     value: number | null;
 };
+export declare type ValueTextFormat = {
+    decimals: number;
+};
 export declare type GaugeTimeSerie = TimeSerie;
 export declare type GaugeOptionsParams = {
     innerRadius: number;
@@ -20,5 +23,6 @@ export declare type GaugeOptionsParams = {
     }[];
     defaultColor: string;
     stat: Stat;
+    valueTextFormat: ValueTextFormat;
 };
 export declare type GaugeOptions = Options & Partial<GaugeOptionsParams>;
