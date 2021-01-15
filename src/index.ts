@@ -79,6 +79,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
 
   get _minWH(): number {
     console.log(this.width, this.height);
+    console.log(this.d3Node.node().offsetWidth, this.d3Node.node().offsetHeight)
     console.log(this.d3Node)
     return _.min([0.6 * this.width, this.height]);
   }
