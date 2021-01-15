@@ -10,13 +10,13 @@ import * as _ from 'lodash';
 
 const SPACE_BETWEEN_CIRCLES = 2;
 const CIRCLES_ROUNDING = 0.15; //radians
-const BACKGROUND_COLOR = 'rgba(38, 38, 38, 0.2)';
+const BACKGROUND_COLOR = 'rgba(38, 38, 38, 0.1)';
 const DEFAULT_INNER_RADIUS = 48;
 const DEFAULT_OUTER_RADIUS = 72;
 const STOPS_CIRCLE_WIDTH = 4;
-const VALUE_TEXT_FONT_SIZE = 14;
+const VALUE_TEXT_FONT_SIZE = 16;
 const DEFAULT_VALUE_TEXT_Decimals = 2;
-const VALUE_TEXT_MARGIN = 16;
+const VALUE_TEXT_MARGIN = 10;
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   usePanning: false,
@@ -195,12 +195,14 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueTextFontSize(): number {
-    if(this._valueText.length <= 10) {
+    if(this._valueText.length <= 6) {
       return VALUE_TEXT_FONT_SIZE;
-    } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
+    } else if(this._valueText.length > 6 && this._valueText.length <= 10) {
       return VALUE_TEXT_FONT_SIZE - 2;
-    } else {
+    } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
       return VALUE_TEXT_FONT_SIZE - 4;
+    } else {
+      return VALUE_TEXT_FONT_SIZE - 6;
     }
   }
 
