@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions, Stat, Stop, ValueTextFormat } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
@@ -27,7 +27,10 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   zoom: {
     type: ZoomType.NONE
   },
-
+  margin: {
+    top: 0, bottom: 0,
+    left: 0, right: 0
+  },
   stops: [
     {
       color: 'green',
@@ -51,6 +54,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   // TODO: better name
   private _gaugeTransform = '';
   private _gaugeCenter = '';
+  private _minWH = 0;
 
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
@@ -64,12 +68,19 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       this.renderNoDataPointsMessage();
       return;
     }
-    this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
-    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${this.height + this.margin.top - VALUE_TEXT_MARGIN})`;
 
+    this._setBoundingBox();
     this._renderValueArc();
     this._renderThresholdArc();
     this._renderValue();
+  }
+
+  private _setBoundingBox(): void {
+    // TODO: refactor
+    this._gaugeTransform = `translate(${this.width / 2},${0.8 * this.height})`;
+    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${0.8 * this.height})`;
+
+    this._minWH = _.min([0.6 * this.width, this.height]);
   }
 
   private _renderValue(): void {
@@ -79,13 +90,12 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('y', 0)
       .text(this._valueText)
       .classed('value-text', true)
-      .attr('font-family', 'Poppins, sans-serif')
+      .attr('font-family', 'Roboto, "Helvetica Neue", Arial, sans-serif')
       .attr('font-size', `${this._valueTextFontSize}px`)
       .attr('transform', this._gaugeCenter)
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
-      .attr('fill', this._mainCircleColor)
-      .style('font-weight', 'bold');
+      .attr('fill', this._mainCircleColor);
   }
 
   private _renderValueArc(): void {
@@ -195,15 +205,17 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueTextFontSize(): number {
+    let font;
     if(this._valueText.length <= 6) {
-      return VALUE_TEXT_FONT_SIZE;
+      font = VALUE_TEXT_FONT_SIZE;
     } else if(this._valueText.length > 6 && this._valueText.length <= 10) {
-      return VALUE_TEXT_FONT_SIZE - 2;
+      font = VALUE_TEXT_FONT_SIZE - 2;
     } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
-      return VALUE_TEXT_FONT_SIZE - 4;
+      font = VALUE_TEXT_FONT_SIZE - 4;
     } else {
-      return VALUE_TEXT_FONT_SIZE - 6;
+      font = VALUE_TEXT_FONT_SIZE - 6;
     }
+    return this.rescaleValueFont(font);
   }
 
   private get _stat(): Stat {
@@ -211,11 +223,29 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _innerRadius(): number {
-    return this.options.innerRadius;
+    // TODO: scale shouldn't be here
+    return this.rescaleArcRadius(this.options.innerRadius);
   }
 
   private get _outerRadius(): number {
-    return this.options.outerRadius;
+    // TODO: scale shouldn't be here
+    return this.rescaleArcRadius(this.options.outerRadius);
+  }
+
+  rescaleArcRadius(radius: number): number {
+    return radius * this._scaleFactor;
+  }
+
+  rescaleValueFont(fontsize: number): number {
+    const scale = 0.8 * this._scaleFactor;
+    return fontsize * scale;
+  }
+
+  private get _scaleFactor(): number {
+    const stopOuterRadius = this.options.outerRadius + SPACE_BETWEEN_CIRCLES + STOPS_CIRCLE_WIDTH;
+    const marginForRounded = VALUE_TEXT_MARGIN + 10;
+    const scale = this._minWH / (stopOuterRadius + marginForRounded);
+    return scale;
   }
 
   private get _valueTextDecimals(): number {
