@@ -51,9 +51,6 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
-  lastHeight = -1;
-  lastWidth = -1;
-  
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
       d3, el, _series,
@@ -67,21 +64,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       return;
     }
 
-    this._waitForLoadAndRender();
-  }
-
-  _waitForLoadAndRender(): void {
-    if(this.width !== this.lastWidth && this.height !== this.lastHeight) {
-      this.lastWidth = this.width;
-      this.lastHeight = this.height;
-      setTimeout(() => {
-        this._waitForLoadAndRender();
-      }, 500);
-    } else {
-      this._renderValueArc();
-      this._renderThresholdArc();
-      this._renderValue();
-    }
+    this._renderValueArc();
+    this._renderThresholdArc();
+    this._renderValue();
   }
 
   get _gaugeTransform(): string {

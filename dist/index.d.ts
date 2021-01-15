@@ -1,11 +1,8 @@
 import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
 import { ChartwerkPod } from '@chartwerk/core';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
-    lastHeight: number;
-    lastWidth: number;
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
-    _waitForLoadAndRender(): void;
     get _gaugeTransform(): string;
     get _gaugeCenter(): string;
     get _minWH(): number;
