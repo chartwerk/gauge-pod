@@ -12,6 +12,10 @@ export type Stop = {
   value: number | null
 };
 
+export type ValueTextFormat = {
+  decimals: number
+};
+
 export type GaugeTimeSerie = TimeSerie;
 
 export type GaugeOptionsParams = {
@@ -22,5 +26,6 @@ export type GaugeOptionsParams = {
   stops: { color: string , value: number }[];
   defaultColor: string;
   stat: Stat;
+  valueTextFormat: ValueTextFormat;
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;

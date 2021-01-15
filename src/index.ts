@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions, Stat, Stop } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop, ValueTextFormat } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
@@ -10,11 +10,13 @@ import * as _ from 'lodash';
 
 const SPACE_BETWEEN_CIRCLES = 2;
 const CIRCLES_ROUNDING = 0.15; //radians
-const BACKGROUND_COLOR = '#262626';
+const BACKGROUND_COLOR = 'rgba(38, 38, 38, 0.2)';
 const DEFAULT_INNER_RADIUS = 48;
 const DEFAULT_OUTER_RADIUS = 72;
-const DEFAULT_STOPS_CIRCLE_WIDTH = 4;
-const DEFAULT_VALUE_TEXT_FONT_SIZE = 14;
+const STOPS_CIRCLE_WIDTH = 4;
+const VALUE_TEXT_FONT_SIZE = 14;
+const DEFAULT_VALUE_TEXT_Decimals = 2;
+const VALUE_TEXT_MARGIN = 16;
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   usePanning: false,
@@ -39,7 +41,10 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   defaultColor: 'red',
   stat: Stat.CURRENT,
   innerRadius: DEFAULT_INNER_RADIUS,
-  outerRadius: DEFAULT_OUTER_RADIUS
+  outerRadius: DEFAULT_OUTER_RADIUS,
+  valueTextFormat: {
+    decimals: DEFAULT_VALUE_TEXT_Decimals
+  }
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -60,7 +65,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       return;
     }
     this._gaugeTransform = `translate(${this.width / 2},${this.height - 10})`;
-    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${this.height + this.margin.top - 16})`;
+    this._gaugeCenter = `translate(${this.width / 2 + this.margin.left},${this.height + this.margin.top - VALUE_TEXT_MARGIN})`;
 
     this._renderValueArc();
     this._renderThresholdArc();
@@ -107,7 +112,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     }
     const thresholdInnerRadius = this._outerRadius + SPACE_BETWEEN_CIRCLES;
     // TODO: move to options
-    const thresholdOuterRadius = thresholdInnerRadius + DEFAULT_STOPS_CIRCLE_WIDTH;
+    const thresholdOuterRadius = thresholdInnerRadius + STOPS_CIRCLE_WIDTH;
     const thresholdArc = d3.arc()
       .innerRadius(thresholdInnerRadius)
       .outerRadius(thresholdOuterRadius)
@@ -185,12 +190,18 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueText(): string {
-    // TODO: toFixed count should be an option
-    return this.aggregatedValue.toFixed(2);
+    const decimalsCount = this._valueTextDecimals;
+    return this.aggregatedValue.toFixed(decimalsCount);
   }
 
   private get _valueTextFontSize(): number {
-    return DEFAULT_VALUE_TEXT_FONT_SIZE;
+    if(this._valueText.length <= 10) {
+      return VALUE_TEXT_FONT_SIZE;
+    } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
+      return VALUE_TEXT_FONT_SIZE - 2;
+    } else {
+      return VALUE_TEXT_FONT_SIZE - 4;
+    }
   }
 
   private get _stat(): Stat {
@@ -205,6 +216,13 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return this.options.outerRadius;
   }
 
+  private get _valueTextDecimals(): number {
+    if(this.options.valueTextFormat === undefined) {
+      throw new Error(`Options has no valueTextFormat`);      
+    }
+    return this.options.valueTextFormat.decimals;
+  }
+
   private get aggregatedValue(): number {
     switch(this._stat) {
       case Stat.CURRENT:
@@ -217,19 +235,6 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
 
   private get _maxValue(): number {
     return this.options.maxValue || this.maxValue;
-  }
-
-  private _renderNeedle(): void {
-    let scale = d3.scaleLinear()
-      .domain([0, this._maxValue])
-      .range([0, 180])
-      .clamp(true);
-
-    this.chartContainer.selectAll('.needle')
-      .data([this.aggregatedValue])
-      .attr('transform', (d: number) => {
-        return this._gaugeTransform + 'rotate(' + scale(d) + ')'
-      });
   }
 
   /* handlers and overloads */
