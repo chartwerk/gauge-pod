@@ -17,6 +17,7 @@ export declare type GaugeOptionsParams = {
     innerRadius: number;
     outerRadius: number;
     maxValue: number;
+    minValue: number;
     stops: {
         color: string;
         value: number;

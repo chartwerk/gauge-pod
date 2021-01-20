@@ -14,6 +14,7 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private get _valueArcColors();
     private get _mainCircleColor();
     private get _stopsRange();
+    getUpdatedRangeWithMinValue(range: number[]): number[];
     private get _valueRange();
     private get _sortedStops();
     private get _stopsValues();
@@ -25,10 +26,13 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private get _outerRadius();
     rescaleArcRadius(radius: number): number;
     rescaleValueFont(fontsize: number): number;
+    rescaleSpace(space: number): number;
+    rescaleWith(width: number): number;
     private get _scaleFactor();
     private get _valueTextDecimals();
     private get aggregatedValue();
     private get _maxValue();
+    private get _minValue();
     onMouseOver(): void;
     onMouseMove(): void;
     onMouseOut(): void;
