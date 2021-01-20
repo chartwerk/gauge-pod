@@ -120,9 +120,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     if(this._sortedStops.length === 0) {
       return;
     }
-    const thresholdInnerRadius = this._outerRadius + SPACE_BETWEEN_CIRCLES;
+    const spaceBetweenCircles = this.rescaleSpace(SPACE_BETWEEN_CIRCLES);
+    const thresholdInnerRadius = this._outerRadius + spaceBetweenCircles;
+    const stopCircleWidth = this.rescaleWith(STOPS_CIRCLE_WIDTH);
     // TODO: move to options
-    const thresholdOuterRadius = thresholdInnerRadius + STOPS_CIRCLE_WIDTH;
+    const thresholdOuterRadius = thresholdInnerRadius + stopCircleWidth;
     const thresholdArc = d3.arc()
       .innerRadius(thresholdInnerRadius)
       .outerRadius(thresholdOuterRadius)
@@ -170,20 +172,28 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   private get _stopsRange(): number[] {
     // TODO: refactor
     // TODO: max value might be less than the latest stop
-    const stopValues = [...this._stopsValues, this._maxValue];
+    let stopValues = [...this._stopsValues, this._maxValue];
 
     if(stopValues.length < 2) {
-      return stopValues;
+      return this.getUpdatedRangeWithMinValue(stopValues);
     }
     let range = [stopValues[0]];
     for(let i = 1; i < stopValues.length; i++) {
       range.push(stopValues[i] - stopValues[i-1]);
     }
-    return range;
+    return this.getUpdatedRangeWithMinValue(range);
+  }
+
+  getUpdatedRangeWithMinValue(range: number[]): number[] {
+    let updatedRange = range;
+    updatedRange[0] = range[0] - this._minValue;
+    return updatedRange;
   }
 
   private get _valueRange(): [number, number] {
-    return [this.aggregatedValue, this._maxValue - this.aggregatedValue];
+    const startValue = this.aggregatedValue - this._minValue;
+    const endValue = this._maxValue - startValue;
+    return [startValue, endValue];
   }
 
   private get _sortedStops(): Stop[] {
@@ -241,6 +251,16 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return fontsize * scale;
   }
 
+  rescaleSpace(space: number): number {
+    const scale = 0.5 * this._scaleFactor;
+    return space * scale;
+  }
+
+  rescaleWith(width: number): number {
+    const scale = 0.6 * this._scaleFactor;
+    return width * scale;
+  }
+
   private get _scaleFactor(): number {
     const stopOuterRadius = this.options.outerRadius + SPACE_BETWEEN_CIRCLES + STOPS_CIRCLE_WIDTH;
     const marginForRounded = VALUE_TEXT_MARGIN + 10;
@@ -267,6 +287,10 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
 
   private get _maxValue(): number {
     return this.options.maxValue || this.maxValue;
+  }
+
+  private get _minValue(): number {
+    return this.options.minValue || 0;
   }
 
   /* handlers and overloads */

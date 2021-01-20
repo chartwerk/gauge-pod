@@ -23,6 +23,7 @@ export type GaugeOptionsParams = {
   outerRadius: number;
   // TODO: minValue
   maxValue: number;
+  minValue: number;
   stops: { color: string , value: number }[];
   defaultColor: string;
   stat: Stat;
