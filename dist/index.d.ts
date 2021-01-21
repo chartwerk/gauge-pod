@@ -25,7 +25,6 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     rescaleArcRadius(radius: number): number;
     rescaleValueFont(fontsize: number): number;
     private get _scaleFactor();
-    private get _valueTextDecimals();
     private get aggregatedValue();
     private get _maxValue();
     onMouseOver(): void;
