@@ -44,8 +44,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   defaultColor: 'red',
   stat: Stat.CURRENT,
   innerRadius: DEFAULT_INNER_RADIUS,
-  outerRadius: DEFAULT_OUTER_RADIUS,
-  valueFormatter: val => val.toString() 
+  outerRadius: DEFAULT_OUTER_RADIUS 
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -206,7 +205,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueText(): string {
-    if(this.options.valueFormatter) {
+    if(this.options.valueFormatter === undefined) {
       console.log('valueFormatter function is not specified, rendering raw value');
       return this.aggregatedValue.toString();
     }
