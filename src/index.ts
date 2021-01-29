@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions, Stat, Stop } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition} from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
 
@@ -17,6 +17,7 @@ const STOPS_CIRCLE_WIDTH = 4;
 const VALUE_TEXT_FONT_SIZE = 16;
 const DEFAULT_VALUE_TEXT_Decimals = 2;
 const VALUE_TEXT_MARGIN = 10;
+const DEFAULT_ICON_SIZE = 20; //px
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   usePanning: false,
@@ -44,7 +45,8 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   defaultColor: 'red',
   stat: Stat.CURRENT,
   innerRadius: DEFAULT_INNER_RADIUS,
-  outerRadius: DEFAULT_OUTER_RADIUS 
+  outerRadius: DEFAULT_OUTER_RADIUS,
+  icons: []
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -64,18 +66,80 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._renderValueArc();
     this._renderThresholdArc();
     this._renderValue();
+    this._renderIcons();
   }
 
   get _gaugeTransform(): string {
     return `translate(${this.width / 2},${0.8 * this.height})`;
   }
 
-  get _gaugeCenter(): string {
-    return `translate(${this.width / 2 + this.margin.left},${0.8 * this.height})`;
+  get _gaugeCenterTranform(): string {
+    return `translate(${this._gaugeCenterCoordinate.x},${0.8 * this._gaugeCenterCoordinate.y})`;
+  }
+
+  get _gaugeCenterCoordinate(): { x: number, y: number} {
+    // TODO: 0.8 is the hardcoded value. It can be calculated
+    return {
+      x: this.width / 2 + this.margin.left,
+      y: this.height
+    }
   }
 
   get _minWH(): number {
+    // TODO: 0.6 is the hardcoded value. It can be calculated
     return _.min([0.6 * this.width, this.height]);
+  }
+
+  private _renderIcons(): void {
+    if(this.options.icons === undefined || this.options.icons.length === 0) {
+      return;
+    }
+    this.options.icons.map(icon => {
+      this._renderIcon(icon);
+    });
+  }
+
+  private _renderIcon(icon: IconConfig): void {
+    if(icon.src === undefined || icon.src.length === 0) {
+      return;
+    }
+    this.svg
+      .append('image')
+      .attr('xlink:href', icon.src)
+      .attr('x', this._getIconPosition(icon).x)
+      .attr('y', this._getIconPosition(icon).y)
+      .attr('width', `${this._getIconSize(icon)}px`)
+      .attr('height', `${this._getIconSize(icon)}px`);
+  }
+
+  private _getIconPosition(icon: IconConfig): { x: number, y: number } {
+    const iconXCenter = this._gaugeCenterCoordinate.x - this._getIconSize(icon) / 2;
+    const iconYCenter = 0.8 * this.height - this._getIconSize(icon) / 2;
+
+    switch(icon.position) {
+      case IconPosition.LEFT:
+        // TOOD: refactor, it can be calculated by Math.sin, Math.cos
+        const leftX = iconXCenter - this._innerRadius;
+        const leftY = iconYCenter - 0.8 * this._outerRadius;
+        return { x: leftX, y: leftY }
+      case IconPosition.MIDDLE:
+        const middleX = iconXCenter;
+        const middleY = iconYCenter - 0.6 * this._innerRadius;
+        return { x: middleX, y: middleY }
+      case IconPosition.RIGHT:
+        const rightX = iconXCenter + this._innerRadius;
+        const rightY = iconYCenter - 0.8 * this._outerRadius;
+        return { x: rightX, y: rightY }
+      default:
+        throw new Error(`Unknown type of icon position: ${icon.position}`);
+    }
+  }
+
+  private _getIconSize(icon: IconConfig): number {
+    if(icon.size === undefined) {
+      return this.rescaleWith(DEFAULT_ICON_SIZE);
+    }
+    return this.rescaleWith(icon.size);
   }
 
   private _renderValue(): void {
@@ -87,7 +151,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .classed('value-text', true)
       .attr('font-family', 'Roboto, "Helvetica Neue", Arial, sans-serif')
       .attr('font-size', `${this._valueTextFontSize}px`)
-      .attr('transform', this._gaugeCenter)
+      .attr('transform', this._gaugeCenterTranform)
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
       .attr('fill', this._mainCircleColor);

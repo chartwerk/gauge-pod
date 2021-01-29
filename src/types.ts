@@ -16,6 +16,17 @@ export type ValueFormatter = (value: number) => string;
 
 export type GaugeTimeSerie = TimeSerie;
 
+export type IconConfig = {
+  src: string,
+  position: IconPosition,
+  size: number
+}
+export enum IconPosition {
+  LEFT = 'left',
+  MIDDLE = 'middle',
+  RIGHT = 'right'
+}
+
 export type GaugeOptionsParams = {
   innerRadius: number;
   outerRadius: number;
@@ -26,5 +37,6 @@ export type GaugeOptionsParams = {
   defaultColor: string;
   stat: Stat;
   valueFormatter: ValueFormatter;
+  icons: IconConfig[];
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;

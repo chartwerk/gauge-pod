@@ -7,7 +7,7 @@
     <script src="../dist/index.js" type="text/javascript"></script>
   </head>
   <body>
-    <div id="chart" style="width: 500px; height: 500px;"></div>
+    <div id="chart" style="width: 400px; height: 400px;"></div>
 
     <script type="text/javascript">
       var pod = new ChartwerkGaugePod(
@@ -26,7 +26,8 @@
           ],
           defaultColor: 'red',
           maxValue: 40,
-          minValue: 10
+          minValue: 10,
+          icons: [ { src: 'https://cityhost.ua/upload_img/blog5ef308ea5529c_trash2-01.jpg', position: 'middle', size: 30 }]
         }
       );
       pod.render();
