@@ -4,8 +4,16 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
     get _gaugeTransform(): string;
-    get _gaugeCenter(): string;
+    get _gaugeCenterTranform(): string;
+    get _gaugeCenterCoordinate(): {
+        x: number;
+        y: number;
+    };
     get _minWH(): number;
+    private _renderIcons;
+    private _renderIcon;
+    private _getIconPosition;
+    private _getIconSize;
     private _renderValue;
     private _renderValueArc;
     private _renderThresholdArc;

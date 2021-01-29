@@ -11,6 +11,16 @@ export declare type Stop = {
 };
 export declare type ValueFormatter = (value: number) => string;
 export declare type GaugeTimeSerie = TimeSerie;
+export declare type IconConfig = {
+    src: string;
+    position: IconPosition;
+    size: number;
+};
+export declare enum IconPosition {
+    LEFT = "left",
+    MIDDLE = "middle",
+    RIGHT = "right"
+}
 export declare type GaugeOptionsParams = {
     innerRadius: number;
     outerRadius: number;
@@ -23,5 +33,6 @@ export declare type GaugeOptionsParams = {
     defaultColor: string;
     stat: Stat;
     valueFormatter: ValueFormatter;
+    icons: IconConfig[];
 };
 export declare type GaugeOptions = Options & Partial<GaugeOptionsParams>;
