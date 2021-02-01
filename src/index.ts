@@ -168,6 +168,13 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .data(valueArcs)
       .enter()
       .append('path')
+      .attr('class', (d: object, i: number) => {
+        if(i === 0) {
+          return 'value-arc';
+        } else {
+          return 'backgroung-arc'
+        }
+      })
       .style('fill', (d: object, i: number) => {
         return this._valueArcColors[i];
       })
@@ -194,6 +201,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .data(stopArcs)
       .enter()
       .append('path')
+      .attr('class', (d: object, i: number) => {
+        return `stop-arc-${i}`;
+      })
       .style('fill', (d: object, i: number) => {
         return this._colors[i];
       })
