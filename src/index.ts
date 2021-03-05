@@ -46,7 +46,9 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   stat: Stat.CURRENT,
   innerRadius: DEFAULT_INNER_RADIUS,
   outerRadius: DEFAULT_OUTER_RADIUS,
-  icons: []
+  icons: [],
+  valueSize: VALUE_TEXT_FONT_SIZE,
+  valueArcBackgroundColor: BACKGROUND_COLOR
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -219,12 +221,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueArcColors(): [string, string] {
-    return [this._mainCircleColor, BACKGROUND_COLOR];
+    return [this._mainCircleColor, this._valueArcBackgroundColor];
   }
 
   private get _mainCircleColor(): string {
-    if(this.aggregatedValue > _.max(this._stopsValues) || this.aggregatedValue < 0 || this._sortedStops.length === 0) {
-      // TODO: aggregatedValue can be less than 0
+    if(this.aggregatedValue > _.max(this._stopsValues) || this._sortedStops.length === 0) {
       return this.options.defaultColor;
     }
     // TODO: refactor
@@ -260,13 +261,14 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueRange(): [number, number] {
+    const valueRange = this._maxValue - this._minValue;
     const startValue = this.aggregatedValue - this._minValue;
-    const endValue = this._maxValue - startValue;
+    const endValue = valueRange - startValue;
     return [startValue, endValue];
   }
 
   private get _sortedStops(): Stop[] {
-    return _.sortBy(this.options.stops);
+    return _.sortBy(this.options.stops, [stop => stop.value]);
   }
 
   private get _stopsValues(): number[] {
@@ -289,19 +291,27 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   private get _valueTextFontSize(): number {
     let font;
     if(this._valueText.length <= 6) {
-      font = VALUE_TEXT_FONT_SIZE;
+      font = this._valueSize;
     } else if(this._valueText.length > 6 && this._valueText.length <= 10) {
-      font = VALUE_TEXT_FONT_SIZE - 2;
+      font = this._valueSize - 2;
     } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
-      font = VALUE_TEXT_FONT_SIZE - 4;
+      font = this._valueSize - 4;
     } else {
-      font = VALUE_TEXT_FONT_SIZE - 6;
+      font = this._valueSize - 6;
     }
     return this.rescaleValueFont(font);
   }
 
   private get _stat(): Stat {
     return this.options.stat;
+  }
+
+  private get _valueSize(): number {
+    return this.options.valueSize;
+  }
+
+  private get _valueArcBackgroundColor(): string {
+    return this.options.valueArcBackgroundColor;
   }
 
   private get _innerRadius(): number {

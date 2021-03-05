@@ -12,21 +12,21 @@
     <script type="text/javascript">
       var pod = new ChartwerkGaugePod(
         document.getElementById('chart'),
-        [{ target: 'test', datapoints: [[5, 5], [0, 10], [30, 15], [50, 20], [30, 25]] }],
+        [{ target: 'test', datapoints: [[5, 5], [0, 10], [30, 15], [50, 20], [17, 25]] }],
         {
           stops: [
             {
               color: 'green',
-              value: 20
+              value: 18
             }, 
             {
               color: 'orange',
-              value: 30
+              value: 14
             }
           ],
           defaultColor: 'red',
-          maxValue: 40,
-          minValue: 10,
+          maxValue: 20,
+          minValue: -20,
           icons: [ { src: 'https://cityhost.ua/upload_img/blog5ef308ea5529c_trash2-01.jpg', position: 'middle', size: 30 }]
         }
       );
