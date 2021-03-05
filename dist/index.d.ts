@@ -29,6 +29,8 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private get _valueText();
     private get _valueTextFontSize();
     private get _stat();
+    private get _valueSize();
+    private get _valueArcBackgroundColor();
     private get _innerRadius();
     private get _outerRadius();
     rescaleArcRadius(radius: number): number;
