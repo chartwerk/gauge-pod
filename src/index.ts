@@ -47,7 +47,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   innerRadius: DEFAULT_INNER_RADIUS,
   outerRadius: DEFAULT_OUTER_RADIUS,
   icons: [],
-  valueSize: VALUE_TEXT_FONT_SIZE,
+  valueFontSize: VALUE_TEXT_FONT_SIZE,
   valueArcBackgroundColor: BACKGROUND_COLOR
 };
 
@@ -291,13 +291,13 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   private get _valueTextFontSize(): number {
     let font;
     if(this._valueText.length <= 6) {
-      font = this._valueSize;
+      font = this._valueFontSize;
     } else if(this._valueText.length > 6 && this._valueText.length <= 10) {
-      font = this._valueSize - 2;
+      font = this._valueFontSize - 2;
     } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
-      font = this._valueSize - 4;
+      font = this._valueFontSize - 4;
     } else {
-      font = this._valueSize - 6;
+      font = this._valueFontSize - 6;
     }
     return this.rescaleValueFont(font);
   }
@@ -306,8 +306,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return this.options.stat;
   }
 
-  private get _valueSize(): number {
-    return this.options.valueSize;
+  private get _valueFontSize(): number {
+    return this.options.valueFontSize;
   }
 
   private get _valueArcBackgroundColor(): string {

@@ -38,7 +38,7 @@ export type GaugeOptionsParams = {
   stat: Stat;
   valueFormatter: ValueFormatter;
   icons: IconConfig[];
-  valueSize: number;
+  valueFontSize: number;
   valueArcBackgroundColor: string;
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;
