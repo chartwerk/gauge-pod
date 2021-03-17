@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+
+    <script src="../dist/index.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="chart" style="width: 400px; height: 400px;"></div>
+
+    <script type="text/javascript">
+      var pod = new ChartwerkGaugePod(
+        document.getElementById('chart'),
+        [{ target: 'test', datapoints: [[5, 5], [0, 10], [30, 15], [50, 20], [8, 25]] }],
+        {
+          stops: [
+            {
+              color: 'green',
+              value: 15
+            }, 
+            {
+              color: 'orange',
+              value: 10
+            }
+          ],
+          defaultColor: 'red',
+          maxValue: 20,
+          minValue: -5,
+          reversed: true
+        }
+      );
+      pod.render();
+    </script>
+  </body>
+</html>

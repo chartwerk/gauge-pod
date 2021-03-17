@@ -40,5 +40,6 @@ export type GaugeOptionsParams = {
   icons: IconConfig[];
   valueFontSize: number;
   valueArcBackgroundColor: string;
+  reversed: boolean;
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;

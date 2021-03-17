@@ -9,11 +9,11 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 
 const SPACE_BETWEEN_CIRCLES = 2;
-const CIRCLES_ROUNDING = 0.15; //radians
+const CIRCLES_ROUNDING = 0.25; //radians
 const BACKGROUND_COLOR = 'rgba(38, 38, 38, 0.1)';
-const DEFAULT_INNER_RADIUS = 48;
+const DEFAULT_INNER_RADIUS = 52;
 const DEFAULT_OUTER_RADIUS = 72;
-const STOPS_CIRCLE_WIDTH = 4;
+const STOPS_CIRCLE_WIDTH = 8;
 const VALUE_TEXT_FONT_SIZE = 16;
 const DEFAULT_VALUE_TEXT_Decimals = 2;
 const VALUE_TEXT_MARGIN = 10;
@@ -48,7 +48,8 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   outerRadius: DEFAULT_OUTER_RADIUS,
   icons: [],
   valueFontSize: VALUE_TEXT_FONT_SIZE,
-  valueArcBackgroundColor: BACKGROUND_COLOR
+  valueArcBackgroundColor: BACKGROUND_COLOR,
+  reversed: false,
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -221,6 +222,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueArcColors(): [string, string] {
+    if(this.options.reversed === true) {
+      return [this._valueArcBackgroundColor, this._mainCircleColor];
+    }
     return [this._mainCircleColor, this._valueArcBackgroundColor];
   }
 
@@ -257,6 +261,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   getUpdatedRangeWithMinValue(range: number[]): number[] {
     let updatedRange = range;
     updatedRange[0] = range[0] - this._minValue;
+    if(this.options.reversed === true) {
+      return _.reverse(updatedRange);
+    }
     return updatedRange;
   }
 
@@ -264,6 +271,9 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     const valueRange = this._maxValue - this._minValue;
     const startValue = this.aggregatedValue - this._minValue;
     const endValue = valueRange - startValue;
+    if(this.options.reversed === true) {
+      return [endValue, startValue];
+    }
     return [startValue, endValue];
   }
 
@@ -277,7 +287,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
 
   private get _colors(): string[] {
     // TODO: refactor
-    return [...this._sortedStops.map(stop => stop.color), this.options.defaultColor];
+    const colors = [...this._sortedStops.map(stop => stop.color), this.options.defaultColor];
+    if(this.options.reversed === true) {
+      return _.reverse(colors);
+    }
+    return colors;
   }
 
   private get _valueText(): string {
