@@ -1,6 +1,6 @@
-import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition} from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition } from './types';
 
-import { ChartwerkPod, VueChartwerkPodMixin, ZoomType } from '@chartwerk/core';
+import { ChartwerkPod, VueChartwerkPodMixin, AxisFormat } from '@chartwerk/core';
 
 import { findClosest } from './utils';
 
@@ -20,13 +20,29 @@ const VALUE_TEXT_MARGIN = 10;
 const DEFAULT_ICON_SIZE = 20; //px
 
 const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
-  usePanning: false,
   renderLegend: false,
-  renderYaxis: false,
-  renderXaxis: false,
   renderGrid: false,
-  zoom: {
-    type: ZoomType.NONE
+  zoomEvents: {
+    mouse: {
+      zoom: {
+        isActive: false,
+      },
+      pan: {
+        isActive: false
+      },
+    },
+    scroll: {
+      zoom: {
+        isActive: false
+      },
+      pan: {
+        isActive: false,
+      }
+    },
+  },
+  axis: {
+    x: { isActive: false, format: AxisFormat.NUMERIC },
+    y: { isActive: false, format: AxisFormat.NUMERIC },
   },
   margin: {
     top: 0, bottom: 0,
