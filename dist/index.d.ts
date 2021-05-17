@@ -3,6 +3,7 @@ import { ChartwerkPod } from '@chartwerk/core';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
+    protected updateOptions(newOptions: GaugeOptions): void;
     get _gaugeTransform(): string;
     get _gaugeCenterTranform(): string;
     get _gaugeCenterCoordinate(): {

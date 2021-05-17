@@ -1,6 +1,6 @@
 import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition } from './types';
 
-import { ChartwerkPod, VueChartwerkPodMixin, AxisFormat } from '@chartwerk/core';
+import { ChartwerkPod, VueChartwerkPodMixin, AxisFormat, CrosshairOrientation } from '@chartwerk/core';
 
 import { findClosest } from './utils';
 
@@ -43,6 +43,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   axis: {
     x: { isActive: false, format: AxisFormat.NUMERIC },
     y: { isActive: false, format: AxisFormat.NUMERIC },
+    y1: { isActive: false, format: AxisFormat.NUMERIC },
   },
   margin: {
     top: 0, bottom: 0,
@@ -58,6 +59,10 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
       value: 20
     }
   ],
+  crosshair: {
+    orientation: CrosshairOrientation.VERTICAL,
+    color: 'red'
+  },
   defaultColor: 'red',
   stat: Stat.CURRENT,
   innerRadius: DEFAULT_INNER_RADIUS,
@@ -86,6 +91,15 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._renderThresholdArc();
     this._renderValue();
     this._renderIcons();
+  }
+
+  protected updateOptions(newOptions: GaugeOptions): void {
+    if(newOptions === undefined) {
+      return;
+    }
+    let options = _.cloneDeep(newOptions);
+    _.defaultsDeep(options, DEFAULT_GAUGE_OPTIONS);
+    this.options = options;
   }
 
   get _gaugeTransform(): string {
