@@ -421,9 +421,13 @@ export const VueChartwerkGaugePodObject = {
   mixins: [VueChartwerkPodMixin],
   methods: {
     render() {
-      const pod = new ChartwerkGaugePod(document.getElementById(this.id), this.series, this.options);
-      pod.render();
-    }
+      if(this.pod === undefined) { 
+        this.pod = new ChartwerkGaugePod(document.getElementById(this.id), this.series, this.options);
+        this.pod.render();
+      } else {
+        this.pod.updateData(this.series, this.options);
+      }
+    },
   }
 };
 

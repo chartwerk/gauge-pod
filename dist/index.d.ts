@@ -72,6 +72,7 @@ export declare const VueChartwerkGaugePodObject: {
             options(): void;
         };
         mounted(): void;
+        destroyed(): void;
         methods: {
             render(): void;
             renderSharedCrosshair(values: {
