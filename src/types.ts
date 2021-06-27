@@ -1,16 +1,12 @@
-import { TimeSerie, Options, ZoomType } from '@chartwerk/core';
+import { TimeSerie, Options } from '@chartwerk/core';
 
 
 export type GaugeTimeSerie = TimeSerie;
 
-/**
- * The way to choose one value from metrics
- */
-export enum Stat {
-  CURRENT = 'current',
-  // MIN     = 'min',
-  // MAX     = 'max',
-  // TOTAL   = 'total'
+// TODO: move to core
+export type BoundingBox = {
+  x: number, y: number,
+  width: number, height:number
 }
 
 export type Range = {
@@ -18,10 +14,6 @@ export type Range = {
   to: number    // should be >= from
 }
 
-export type Threshold = {
-  value: number,
-  color: string
-}
 
 // this `type` should be `class` and get all functions
 // from GaugeOptionsUtils as methods;
@@ -29,9 +21,18 @@ export type Threshold = {
 // all fields with "?" should be inited in constructor
 // with default values, "?" should be removed after
 export type GaugeOptions = Options & {
-  stat:         Stat,
-  range?:       Range
-  thresholds?:  Threshold[] // should be sorted and inside range
+  range?:                Range,
+  thresholds?:           {       // colors array should be values.length + 1
+    values: number[], 
+    colors: string[] 
+  }, 
+  arcThickness?:         number, // scale factor for arc innner radius
+  curvature?:            number, // length of arc from 0..2 (where 2 is circle)
+  thresholdsThickness?:  number
+  thresholdsOffset?:     number,
+  valueArcColor?:        string  // used only if thresholds not defined
+  backgroundArcColor?:   string  // used only if thresholds not defined
+  valueFormatter?:       (n?: number) => string
 }
 
 /***** OPTIONS UTILS ******/
@@ -41,13 +42,21 @@ export type GaugeOptions = Options & {
  */
 export namespace GaugeOptionsUtils {
   export function setChartwerkSuperPodDefaults(options: GaugeOptions): GaugeOptions { 
-    options.usePanning   = false;
     options.renderLegend = false;
-    options.renderYaxis  = false;
-    options.renderXaxis  = false;
     options.renderGrid   = false;
     options.margin       = { top: 0, right: 0, bottom: 0, left: 0 };
-    options.zoom         = { type: ZoomType.NONE };
+    options.axis         = { x: { isActive: false }, y: { isActive: false }};
+    options.zoomEvents   = {
+      mouse: {
+        zoom: { isActive: false },
+        pan: { isActive: false }
+      },
+      scroll: {
+        zoom: { isActive: false },
+        pan: { isActive: false }
+      }
+    }
+    
     return options;
   }
 
@@ -56,28 +65,24 @@ export namespace GaugeOptionsUtils {
     if(options.range === undefined) {
       options.range = { from: 0, to: 100 };
     }
-    if(options.range === undefined) {
-      options.thresholds = [];
+    if (options.arcThickness == undefined) {
+      options.arcThickness = 0.2;
+    }
+    if (options.curvature == undefined) {
+      options.curvature = 1.5;
+    }
+    if (options.thresholdsThickness == undefined) {
+      options.thresholdsThickness = 0.1;
+    }
+    if (options.thresholdsOffset == undefined) {
+      options.thresholdsOffset = 0.05;
+    }
+    if (options.valueArcColor == undefined) {
+      options.valueArcColor = 'blue';
+    }
+    if (options.backgroundArcColor == undefined) {
+      options.backgroundArcColor = 'gray';
     }
     return options;
-  }
-
-  export function getValueFromDatapoints(
-    options: GaugeOptions, series: GaugeTimeSerie[]
-  ): number | null {
-    // we ignore stat type and always return CURRENT stat
-    if(series.length == 0) {
-      throw new Error('Series are empty');
-    }
-    if(series.length > 1) {
-      console.warn('got to many series: ' + series.length);
-    }
-    // we process exactly one serie
-    let serie = series[0];
-    if(serie.datapoints.length === 0) {
-      return null;
-    }
-    // we take value from position 1, where 0 is time
-    return serie.datapoints[serie.datapoints.length - 1][1];
   }
 }
