@@ -9,9 +9,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CorpGlory",
-  "license": "Apache-2.0",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@chartwerk/core": "github:chartwerk/core#dist"
+    "@chartwerk/core": "git+ssh://git@gitlab.corpglory.com:443/chartwerk/core.git#d089b8b27c0d1137de9d7fbeddaabe3e605aba6c"
   },
   "devDependencies": {
     "@types/d3": "^5.7.2",

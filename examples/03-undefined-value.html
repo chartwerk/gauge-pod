@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <script src="../dist/index.js" type="text/javascript"></script>
     <style type="text/css">
       body, html { width: 100%; height: 100%; margin: 0; }
@@ -10,23 +11,22 @@
   <body>
     <div id="chart"></div>
     <script type="text/javascript">
-      var pod = new GaugeChartwerkPod(
+      new GaugeChartwerkPod(
         document.getElementById('chart'),
-        [
-          {
-            target: 'basic', // TODO: remove this
-            datapoints: [[45, 4]]
-          }
-        ],
+        [{
+          target: 'basic',
+          datapoints: []
+        }],
         {
-          // TODO: make default palette
-          thresholds: {
-            values: [30, 50],
-            colors: ['green', 'yellow', 'red']
-          }
+          valueFormatter: (n) => {
+            if(n === undefined) {
+              return "Not defined"
+            }
+            return n;
+          },
+          curvature: 1.0
         }
-      );
-      pod.render();
+      ).render();
     </script>
   </body>
 </html>
