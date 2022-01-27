@@ -37,5 +37,7 @@ export declare type GaugeOptionsParams = {
     valueFontSize: number;
     valueArcBackgroundColor: string;
     reversed: boolean;
+    enableThresholdLabels: boolean;
+    enableExtremumLabels: boolean;
 };
 export declare type GaugeOptions = Options & Partial<GaugeOptionsParams>;

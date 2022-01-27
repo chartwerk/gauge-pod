@@ -71,6 +71,8 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   valueFontSize: VALUE_TEXT_FONT_SIZE,
   valueArcBackgroundColor: BACKGROUND_COLOR,
   reversed: false,
+  enableExtremumLabels: false,
+  enableThresholdLabels: false,
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
@@ -91,6 +93,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._renderThresholdArc();
     this._renderValue();
     this._renderIcons();
+    this._renderLabels();
   }
 
   protected updateOptions(newOptions: GaugeOptions): void {
@@ -242,6 +245,52 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       })
       .attr('d', thresholdArc as any)
       .attr('transform', this._gaugeTransform);
+  }
+
+  protected _renderLabels(): void {
+    if(this.options.enableThresholdLabels) {
+      if(this._stopsValues && this._stopsValues[0]) {
+        this.renderLabelBackground(0, 16);
+        this.renderLabelText(this.width / 6, 32, String(this._stopsValues[0]));
+      }
+      if(this._stopsValues && this._stopsValues[1]) {
+        this.renderLabelBackground(this.width * 2 / 3, 16);
+        this.renderLabelText(this.width * 5 / 6, 32, String(this._stopsValues[1]));
+      }
+    }
+    if(this.options.enableExtremumLabels) {
+      this.renderLabelBackground(0, this.height - 32);
+      this.renderLabelText(this.width / 6, this.height - 16, String(this._minValue));
+      this.renderLabelBackground(this.width * 2 / 3, this.height - 32);
+      this.renderLabelText(this.width * 5 / 6, this.height - 16, String(this._maxValue));
+    }
+  }
+
+  protected renderLabelBackground(x: number, y: number): void {
+    this.svg
+      .append('rect')
+      .attr('x', x)
+      .attr('y', y)
+      .attr('width', this.width / 3 + 'px')
+      .attr('height', 32 + 'px')
+      .classed('label-background', true)
+      .attr('rx', 16)
+      .attr('fill', 'gray')
+      .attr('fill-opacity', 0.5);
+  }
+
+  protected renderLabelText(x: number, y: number, text: string): void {
+    this.svg
+      .append('text')
+      .attr('x', x)
+      .attr('y', y)
+      .text(text)
+      .classed('label-text', true)
+      .attr('font-family', 'Roboto, "Helvetica Neue", Arial, sans-serif')
+      .attr('font-size', `${this._valueTextFontSize}px`)
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .attr('fill', 'white');
   }
 
   private get _d3Pie(): d3.Pie<any, { valueOf(): number; }> {

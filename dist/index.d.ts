@@ -18,6 +18,9 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private _renderValue;
     private _renderValueArc;
     private _renderThresholdArc;
+    protected _renderLabels(): void;
+    protected renderLabelBackground(x: number, y: number): void;
+    protected renderLabelText(x: number, y: number, text: string): void;
     private get _d3Pie();
     private get _valueArcColors();
     private get _mainCircleColor();

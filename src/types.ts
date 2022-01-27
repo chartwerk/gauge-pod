@@ -41,5 +41,7 @@ export type GaugeOptionsParams = {
   valueFontSize: number;
   valueArcBackgroundColor: string;
   reversed: boolean;
+  enableThresholdLabels: boolean; // render threshold values as a text under the gauge
+  enableExtremumLabels: boolean; // render min/max values as a text above the gauge
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;
