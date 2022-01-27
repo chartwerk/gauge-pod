@@ -293,10 +293,10 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('height', this._valueTextFontSize + 8 + 'px')
       .classed('label-background', true)
       .attr('rx', 16)
-      .attr('fill', 'gray')
+      .attr('fill', '#202330')
       .attr('pointer-events', 'none')
       .style('display', 'none')
-      .attr('fill-opacity', 0.5);
+      .attr('fill-opacity', 0.7);
   }
 
   protected renderLabelText(x: number, y: number, text: string): void {
