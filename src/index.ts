@@ -88,7 +88,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       this.renderNoDataPointsMessage();
       return;
     }
-
+    this._renderOverlayBackground();
     this._renderValueArc();
     this._renderThresholdArc();
     this._renderValue();
@@ -145,7 +145,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('x', this._getIconPosition(icon).x)
       .attr('y', this._getIconPosition(icon).y)
       .attr('width', `${this._getIconSize(icon)}px`)
-      .attr('height', `${this._getIconSize(icon)}px`);
+      .attr('height', `${this._getIconSize(icon)}px`)
+      .attr('pointer-events', 'none');
   }
 
   private _getIconPosition(icon: IconConfig): { x: number, y: number } {
@@ -178,6 +179,21 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     return this.rescaleWith(icon.size);
   }
 
+  protected _renderOverlayBackground(): void {
+    this.svg
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', this.width)
+      .attr('height', this.height)
+      .classed('overlay', true)
+      .attr('pointer-events', 'all')
+      .attr('fill', 'none')
+      .on('mouseover', this.onGaugeMouseOver.bind(this))
+      .on('mouseout', this.onGaugeMouseOut.bind(this))
+      .on('mousemove', this.onGaugeMouseMove.bind(this));
+  }
+
   private _renderValue(): void {
     this.svg
       .append('text')
@@ -190,6 +206,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('transform', this._gaugeCenterTranform)
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
+      .attr('pointer-events', 'none')
       .attr('fill', this._mainCircleColor);
   }
 
@@ -277,6 +294,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .classed('label-background', true)
       .attr('rx', 16)
       .attr('fill', 'gray')
+      .attr('pointer-events', 'none')
+      .style('display', 'none')
       .attr('fill-opacity', 0.5);
   }
 
@@ -291,6 +310,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('font-size', `${this._valueTextFontSize}px`)
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
+      .attr('pointer-events', 'none')
+      .style('display', 'none')
       .attr('fill', 'white');
   }
 
@@ -464,7 +485,21 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   /* handlers and overloads */
   onMouseOver(): void {}
   onMouseMove(): void {}
-  onMouseOut(): void { }
+  onMouseOut(): void {}
+
+  onGaugeMouseOver(): void {
+    this.svg.selectAll('.label-text').style('display', null);
+    this.svg.selectAll('.label-background').style('display', null);
+  }
+  onGaugeMouseMove(): void {
+    this.svg.selectAll('.label-text').style('display', null);
+    this.svg.selectAll('.label-background').style('display', null);
+  }
+  onGaugeMouseOut(): void {
+    this.svg.selectAll('.label-text').style('display', 'none');
+    this.svg.selectAll('.label-background').style('display', 'none');
+  }
+
   renderSharedCrosshair(): void {}
   hideSharedCrosshair(): void {}
 }

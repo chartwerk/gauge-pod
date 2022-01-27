@@ -15,6 +15,7 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private _renderIcon;
     private _getIconPosition;
     private _getIconSize;
+    protected _renderOverlayBackground(): void;
     private _renderValue;
     private _renderValueArc;
     private _renderThresholdArc;
@@ -47,6 +48,9 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     onMouseOver(): void;
     onMouseMove(): void;
     onMouseOut(): void;
+    onGaugeMouseOver(): void;
+    onGaugeMouseMove(): void;
+    onGaugeMouseOut(): void;
     renderSharedCrosshair(): void;
     hideSharedCrosshair(): void;
 }
