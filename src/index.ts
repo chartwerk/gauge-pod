@@ -14,7 +14,7 @@ const BACKGROUND_COLOR = 'rgba(38, 38, 38, 0.1)';
 const DEFAULT_INNER_RADIUS = 52;
 const DEFAULT_OUTER_RADIUS = 72;
 const STOPS_CIRCLE_WIDTH = 8;
-const VALUE_TEXT_FONT_SIZE = 16;
+const DEFAULT_VALUE_TEXT_FONT_SIZE = 16;
 const DEFAULT_VALUE_TEXT_Decimals = 2;
 const VALUE_TEXT_MARGIN = 10;
 const DEFAULT_ICON_SIZE = 20; //px
@@ -68,7 +68,7 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   innerRadius: DEFAULT_INNER_RADIUS,
   outerRadius: DEFAULT_OUTER_RADIUS,
   icons: [],
-  valueFontSize: VALUE_TEXT_FONT_SIZE,
+  valueFontSize: null,
   valueArcBackgroundColor: BACKGROUND_COLOR,
   reversed: false,
   enableExtremumLabels: false,
@@ -248,21 +248,22 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   protected _renderLabels(): void {
+    const yOffset = this._valueTextFontSize + 8;
     if(this.options.enableThresholdLabels) {
       if(this._stopsValues && this._stopsValues[0]) {
-        this.renderLabelBackground(0, 16);
-        this.renderLabelText(this.width / 6, 32, String(this._stopsValues[0]));
+        this.renderLabelBackground(0, yOffset / 2);
+        this.renderLabelText(this.width / 6, yOffset, String(this._stopsValues[0]));
       }
       if(this._stopsValues && this._stopsValues[1]) {
-        this.renderLabelBackground(this.width * 2 / 3, 16);
-        this.renderLabelText(this.width * 5 / 6, 32, String(this._stopsValues[1]));
+        this.renderLabelBackground(this.width * 2 / 3, yOffset / 2);
+        this.renderLabelText(this.width * 5 / 6, yOffset, String(this._stopsValues[1]));
       }
     }
     if(this.options.enableExtremumLabels) {
-      this.renderLabelBackground(0, this.height - 32);
-      this.renderLabelText(this.width / 6, this.height - 16, String(this._minValue));
-      this.renderLabelBackground(this.width * 2 / 3, this.height - 32);
-      this.renderLabelText(this.width * 5 / 6, this.height - 16, String(this._maxValue));
+      this.renderLabelBackground(0, this.height - yOffset);
+      this.renderLabelText(this.width / 6, this.height - yOffset / 2, String(this._minValue));
+      this.renderLabelBackground(this.width * 2 / 3, this.height - yOffset);
+      this.renderLabelText(this.width * 5 / 6, this.height - yOffset / 2, String(this._maxValue));
     }
   }
 
@@ -272,7 +273,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('x', x)
       .attr('y', y)
       .attr('width', this.width / 3 + 'px')
-      .attr('height', 32 + 'px')
+      .attr('height', this._valueTextFontSize + 8 + 'px')
       .classed('label-background', true)
       .attr('rx', 16)
       .attr('fill', 'gray')
@@ -382,25 +383,24 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   private get _valueTextFontSize(): number {
+    if(this.options.valueFontSize) {
+      return this.options.valueFontSize;
+    }
     let font;
     if(this._valueText.length <= 6) {
-      font = this._valueFontSize;
+      font = DEFAULT_VALUE_TEXT_FONT_SIZE;
     } else if(this._valueText.length > 6 && this._valueText.length <= 10) {
-      font = this._valueFontSize - 2;
+      font = DEFAULT_VALUE_TEXT_FONT_SIZE - 2;
     } else if(this._valueText.length > 10 && this._valueText.length <= 12) {
-      font = this._valueFontSize - 4;
+      font = DEFAULT_VALUE_TEXT_FONT_SIZE - 4;
     } else {
-      font = this._valueFontSize - 6;
+      font = DEFAULT_VALUE_TEXT_FONT_SIZE - 6;
     }
     return this.rescaleValueFont(font);
   }
 
   private get _stat(): Stat {
     return this.options.stat;
-  }
-
-  private get _valueFontSize(): number {
-    return this.options.valueFontSize;
   }
 
   private get _valueArcBackgroundColor(): string {
