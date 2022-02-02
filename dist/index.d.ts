@@ -1,6 +1,11 @@
-import { GaugeTimeSerie, GaugeOptions, Stat } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, PointCoordinate } from './types';
 import { ChartwerkPod } from '@chartwerk/core';
+import * as d3 from 'd3';
 export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
+    _draggableLines: any[];
+    _draggedThresholdValues: number[];
+    _thresholdArc: any | null;
+    _thresholdTextLabels: any[];
     constructor(el: HTMLElement, _series?: GaugeTimeSerie[], _options?: GaugeOptions);
     renderMetrics(): void;
     protected updateOptions(newOptions: GaugeOptions): void;
@@ -19,13 +24,31 @@ export declare class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, Gaug
     private _renderValue;
     private _renderValueArc;
     private _renderThresholdArc;
+    protected _getThresholdArc(): d3.Arc<any, d3.DefaultArcObject>;
+    get arcScale(): d3.ScaleLinear<number, number>;
+    protected _renderDraggableLines(): void;
+    protected _renderDraggableLine(stopValue: number, idx: number): void;
+    onDrag(idx: number): void;
+    updateThresholdArcByNewValues(stops: number[]): void;
+    updateThresholdLabel(value: number, idx: number): void;
+    updateDraggableLineByAngle(angle: number, idx: number): void;
+    onDragEnd(idx: number): void;
+    getAngleFromCoordinates(x: number, y: number): number;
+    getAngleBetween2Vectors(vector1: {
+        start: PointCoordinate;
+        end: PointCoordinate;
+    }, vector2: {
+        start: PointCoordinate;
+        end: PointCoordinate;
+    }): number;
+    restrictAngle(angle: number, idx: number): number;
     protected _renderLabels(): void;
     protected renderLabelBackground(x: number, y: number): void;
-    protected renderLabelText(x: number, y: number, text: string): void;
+    protected renderLabelText(x: number, y: number, text: string): d3.Selection<SVGTextElement, unknown, null, undefined>;
     private get _d3Pie();
     private get _valueArcColors();
     private get _mainCircleColor();
-    private get _stopsRange();
+    private _getStopsRange;
     getUpdatedRangeWithMinValue(range: number[]): number[];
     private get _valueRange();
     private get _sortedStops();

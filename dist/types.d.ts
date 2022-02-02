@@ -9,6 +9,10 @@ export declare type Stop = {
     color: string;
     value: number | null;
 };
+export declare type PointCoordinate = {
+    x: number;
+    y: number;
+};
 export declare type ValueFormatter = (value: number) => string;
 export declare type GaugeTimeSerie = TimeSerie;
 export declare type IconConfig = {
@@ -39,5 +43,8 @@ export declare type GaugeOptionsParams = {
     reversed: boolean;
     enableThresholdLabels: boolean;
     enableExtremumLabels: boolean;
+    enableThresholdDrag: boolean;
+    dragCallback: (event: any) => void;
+    dragEndCallback: (event: any) => void;
 };
 export declare type GaugeOptions = Options & Partial<GaugeOptionsParams>;
