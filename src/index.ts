@@ -1,4 +1,4 @@
-import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition } from './types';
+import { GaugeTimeSerie, GaugeOptions, Stat, Stop, IconConfig, IconPosition, PointCoordinate } from './types';
 
 import { ChartwerkPod, VueChartwerkPodMixin, AxisFormat, CrosshairOrientation } from '@chartwerk/core';
 
@@ -73,9 +73,15 @@ const DEFAULT_GAUGE_OPTIONS: GaugeOptions = {
   reversed: false,
   enableExtremumLabels: false,
   enableThresholdLabels: false,
+  enableThresholdDrag: false,
 };
 
 export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions> {
+  _draggableLines: any[] = [];
+  _draggedThresholdValues: number[] = []; // threshold values after dragging
+  _thresholdArc: any | null = null;
+  _thresholdTextLabels: any[] = [];
+
   constructor(el: HTMLElement, _series: GaugeTimeSerie[] = [], _options: GaugeOptions = {}) {
     super(
       d3, el, _series,
@@ -91,6 +97,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._renderOverlayBackground();
     this._renderValueArc();
     this._renderThresholdArc();
+    this._renderDraggableLines();
     this._renderValue();
     this._renderIcons();
     this._renderLabels();
@@ -110,14 +117,14 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   get _gaugeCenterTranform(): string {
-    return `translate(${this._gaugeCenterCoordinate.x},${0.8 * this._gaugeCenterCoordinate.y})`;
+    return `translate(${this._gaugeCenterCoordinate.x},${this._gaugeCenterCoordinate.y})`;
   }
 
   get _gaugeCenterCoordinate(): { x: number, y: number} {
     // TODO: 0.8 is the hardcoded value. It can be calculated
     return {
       x: this.width / 2 + this.margin.left,
-      y: this.height
+      y: 0.8 * this.height
     }
   }
 
@@ -239,18 +246,10 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     if(this._sortedStops.length === 0) {
       return;
     }
-    const spaceBetweenCircles = this.rescaleSpace(SPACE_BETWEEN_CIRCLES);
-    const thresholdInnerRadius = this._outerRadius + spaceBetweenCircles;
-    const stopCircleWidth = this.rescaleWith(STOPS_CIRCLE_WIDTH);
-    // TODO: move to options
-    const thresholdOuterRadius = thresholdInnerRadius + stopCircleWidth;
-    const thresholdArc = d3.arc()
-      .innerRadius(thresholdInnerRadius)
-      .outerRadius(thresholdOuterRadius)
-      .padAngle(0);
+    const thresholdArc = this._getThresholdArc();
 
-    const stopArcs = this._d3Pie(this._stopsRange);
-    this.chartContainer.selectAll(null)
+    const stopArcs = this._d3Pie(this._getStopsRange(this._stopsValues));
+    this._thresholdArc = this.chartContainer.selectAll(null)
       .data(stopArcs)
       .enter()
       .append('path')
@@ -264,16 +263,146 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('transform', this._gaugeTransform);
   }
 
+  protected _getThresholdArc(): d3.Arc<any, d3.DefaultArcObject> {
+    const spaceBetweenCircles = this.rescaleSpace(SPACE_BETWEEN_CIRCLES);
+    const thresholdInnerRadius = this._outerRadius + spaceBetweenCircles;
+    const stopCircleWidth = this.rescaleWith(STOPS_CIRCLE_WIDTH);
+    // TODO: move to options
+    const thresholdOuterRadius = thresholdInnerRadius + stopCircleWidth;
+    const arc = d3.arc()
+      .innerRadius(thresholdInnerRadius)
+      .outerRadius(thresholdOuterRadius)
+      .padAngle(0);
+    return arc;
+  }
+
+  get arcScale(): d3.ScaleLinear<number, number> {
+    return this.d3.scaleLinear()
+      .domain([this.options.minValue, this.options.maxValue])
+      .range([(-1 * Math.PI) / 2 - CIRCLES_ROUNDING, Math.PI / 2 + CIRCLES_ROUNDING]);
+  }
+
+  protected _renderDraggableLines(): void {
+    if(this.options.enableThresholdDrag === false) {
+      return;
+    }
+
+    this._stopsValues.forEach((stopValue, stopIdx) => this._renderDraggableLine(stopValue, stopIdx));
+    this._draggedThresholdValues = _.clone(this._stopsValues);
+  }
+
+  protected _renderDraggableLine(stopValue: number, idx: number): void {
+    const arc = this._getThresholdArc();
+    const draggableSize = 0.025;
+    const thresholdAngle = this.arcScale(stopValue);
+
+    const pie = d3.pie()
+      .startAngle(thresholdAngle - draggableSize)
+      .endAngle(thresholdAngle + draggableSize)
+      .sort(null);
+
+    const drag = this.d3.drag()
+      .on('drag', () => this.onDrag(idx))
+      .on('end', () => this.onDragEnd(idx));
+
+    const dragLine = this.svg.selectAll(null)
+      .data(pie([1]))
+      .enter()
+      .append('path')
+      .attr('class', 'drag-line')
+      .style('fill', 'black')
+      .attr('d', arc as any)
+      .attr('transform', this._gaugeTransform)
+      .style('cursor', 'grab')
+      .attr('pointer-events', 'all');
+    dragLine.call(drag);
+    this._draggableLines.push(dragLine);
+  }
+
+  onDrag(idx: number): void {
+    const angle = this.getAngleFromCoordinates(this.d3.event.x, this.d3.event.y);
+    const restrictedAngle = this.restrictAngle(angle, idx);
+    this.updateDraggableLineByAngle(restrictedAngle, idx);
+    const value = _.ceil(this.arcScale.invert(restrictedAngle), 1);
+    this._draggedThresholdValues[idx] = value;
+    this.updateThresholdArcByNewValues(this._draggedThresholdValues);
+    this.updateThresholdLabel(value, idx);
+    if(this.options.dragCallback) {
+      this.options.dragCallback({ value, idx });
+    }
+  }
+
+  updateThresholdArcByNewValues(stops: number[]): void {
+    const thresholdArc = this._getThresholdArc();
+    const stopArcs = this._d3Pie(this._getStopsRange(stops));
+    this._thresholdArc
+      .data(stopArcs)
+      .attr('d', thresholdArc as any);
+  }
+
+  updateThresholdLabel(value: number, idx: number): void {
+    if(_.isEmpty(this._thresholdTextLabels) || !this._thresholdTextLabels[idx]) {
+      return;
+    }
+    this._thresholdTextLabels[idx].text(value);
+  }
+
+  updateDraggableLineByAngle(angle: number, idx: number): void {
+    const arc = this._getThresholdArc();
+    const draggableSize = 0.025;
+    const pie = d3.pie()
+      .startAngle(angle - draggableSize)
+      .endAngle(angle + draggableSize)
+      .sort(null);
+
+    this._draggableLines[idx].data(pie([1])).attr('d', arc);
+  }
+
+  onDragEnd(idx: number): void {
+    if(this.options.dragEndCallback) {
+      this.options.dragEndCallback({ idx });
+    }
+  }
+
+  getAngleFromCoordinates(x: number, y: number): number {
+    const vector1 = { start: this._gaugeCenterCoordinate, end: { x: this._gaugeCenterCoordinate.x, y: 0 } };
+    const vector2 = { start: this._gaugeCenterCoordinate, end: { x, y } };
+    let a1 = this.getAngleBetween2Vectors(vector1, vector2);
+    if(x < this.width / 2) { // angle < 0 degree
+      return -a1;
+    }
+    return a1;
+  }
+
+  getAngleBetween2Vectors(
+    vector1: { start: PointCoordinate, end: PointCoordinate },
+    vector2: { start: PointCoordinate, end: PointCoordinate }
+  ): number {
+    const x1 = vector1.start.x; const y1 = vector1.start.y;
+    const x2 = vector1.end.x; const y2 = vector1.end.y;
+    const x3 = vector2.start.x; const y3 = vector2.start.y;
+    const x4 = vector2.end.x; const y4 = vector2.end.y;
+    return Math.acos(
+      ((x2 - x1) * (x4 - x3) + (y2 - y1) * (y4 - y3)) /
+      (Math.sqrt( (x2 - x1)**2 + (y2 - y1)**2 ) *
+      Math.sqrt( (x4 - x3)**2 + (y4 - y3)**2 ))
+    )
+  }
+
+  restrictAngle(angle: number, idx: number): number {
+    return _.clamp(angle, -1.8, 1.8);
+  }
+
   protected _renderLabels(): void {
     const yOffset = this._valueTextFontSize + 8;
     if(this.options.enableThresholdLabels) {
       if(this._stopsValues && this._stopsValues[0]) {
         this.renderLabelBackground(0, yOffset / 2);
-        this.renderLabelText(this.width / 6, yOffset, String(this._stopsValues[0]));
+        this._thresholdTextLabels.push(this.renderLabelText(this.width / 6, yOffset, String(this._stopsValues[0])));
       }
       if(this._stopsValues && this._stopsValues[1]) {
         this.renderLabelBackground(this.width * 2 / 3, yOffset / 2);
-        this.renderLabelText(this.width * 5 / 6, yOffset, String(this._stopsValues[1]));
+        this._thresholdTextLabels.push(this.renderLabelText(this.width * 5 / 6, yOffset, String(this._stopsValues[1])));
       }
     }
     if(this.options.enableExtremumLabels) {
@@ -299,8 +428,8 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
       .attr('fill-opacity', 0.7);
   }
 
-  protected renderLabelText(x: number, y: number, text: string): void {
-    this.svg
+  protected renderLabelText(x: number, y: number, text: string): d3.Selection<SVGTextElement, unknown, null, undefined> {
+    return this.svg
       .append('text')
       .attr('x', x)
       .attr('y', y)
@@ -344,10 +473,10 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   // TODO: better name
-  private get _stopsRange(): number[] {
+  private _getStopsRange(stops: number[]): number[] {
     // TODO: refactor
     // TODO: max value might be less than the latest stop
-    let stopValues = [...this._stopsValues, this._maxValue];
+    let stopValues = [...stops, this._maxValue];
 
     if(stopValues.length < 2) {
       return this.getUpdatedRangeWithMinValue(stopValues);

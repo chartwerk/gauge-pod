@@ -12,6 +12,10 @@ export type Stop = {
   value: number | null
 };
 
+export type PointCoordinate = {
+  x: number, y: number
+}
+
 export type ValueFormatter = (value: number) => string;
 
 export type GaugeTimeSerie = TimeSerie;
@@ -43,5 +47,8 @@ export type GaugeOptionsParams = {
   reversed: boolean;
   enableThresholdLabels: boolean; // render threshold values as a text under the gauge
   enableExtremumLabels: boolean; // render min/max values as a text above the gauge
+  enableThresholdDrag: boolean; // drag threshold arcs to change stops values
+  dragCallback: (event: any) =>  void;
+  dragEndCallback: (event: any) => void;
 }
 export type GaugeOptions = Options & Partial<GaugeOptionsParams>;
