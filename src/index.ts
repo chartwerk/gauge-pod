@@ -327,6 +327,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     this._draggedThresholdValues[idx] = value;
     this.updateThresholdArcByNewValues(this._draggedThresholdValues);
     this.updateThresholdLabel(value, idx);
+    this.onGaugeMouseMove();
     if(this.options.dragCallback) {
       this.options.dragCallback({ value, idx });
     }
@@ -359,6 +360,7 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
   }
 
   onDragEnd(idx: number): void {
+    this.onGaugeMouseOut();
     if(this.options.dragEndCallback) {
       this.options.dragEndCallback({ idx });
     }
