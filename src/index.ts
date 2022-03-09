@@ -400,11 +400,11 @@ export class ChartwerkGaugePod extends ChartwerkPod<GaugeTimeSerie, GaugeOptions
     if(this.options.enableThresholdLabels) {
       if(this._stopsValues && this._stopsValues[0]) {
         this.renderLabelBackground(0, yOffset / 2);
-        this._thresholdTextLabels.push(this.renderLabelText(this.width / 6, yOffset, String(this._stopsValues[0])));
+        this._thresholdTextLabels[0] = this.renderLabelText(this.width / 6, yOffset, String(this._stopsValues[0]));
       }
       if(this._stopsValues && this._stopsValues[1]) {
         this.renderLabelBackground(this.width * 2 / 3, yOffset / 2);
-        this._thresholdTextLabels.push(this.renderLabelText(this.width * 5 / 6, yOffset, String(this._stopsValues[1])));
+        this._thresholdTextLabels[1] = this.renderLabelText(this.width * 5 / 6, yOffset, String(this._stopsValues[1]));
       }
     }
     if(this.options.enableExtremumLabels) {
